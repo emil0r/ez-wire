@@ -1,0 +1,15 @@
+= ez-wire
+
+Wire things together.
+
+== Usage
+
+FIXME
+
+== License
+
+Copyright © 2020 Emil Bengtsson
+
+----
+
+Coram Deo
