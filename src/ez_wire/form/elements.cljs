@@ -8,3 +8,6 @@
       (if (true? (:ez-wire.form/by-fn? (meta error)))
         error
         (t error))])])
+
+(defn button-element [props text]
+  [:button props text])

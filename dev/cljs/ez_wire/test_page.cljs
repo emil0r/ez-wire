@@ -56,7 +56,16 @@
 
 (defn home-page []
   (let [data {:test "foobar"}
-        form (testform {} data)]
+        form (testform {} data)
+        wizard-form (testform {:render :wizard
+                               :wizard {:steps [{:fields [:test]
+                                                 :legend [:h3 "Test 1"]}
+                                                {:fields [:test2]
+                                                 :legend [:h3 "Test 2"]}
+                                                {:fields [:test3]
+                                                 :legend [:h3 "Test 3"]}]}}
+                              data)
+        wizard-current-step (rf/subscribe [:ez-wire.form.wizard/current-step (:id wizard-form)])]
     (fn []
       [:div
        [:div "Hi there"]
@@ -96,7 +105,11 @@
                           :$test2.label
                           :$test2.field
                           :$test2.errors]]}
-          form]]]
+          form]]
+        [:div
+         [:h2 "My wizard testform [table]"]
+         [:div "Step " @wizard-current-step]
+         [form/as-table {} wizard-form]]]
        [:div.clear]])))
 
 (defn mount-root []

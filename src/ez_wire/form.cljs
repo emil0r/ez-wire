@@ -8,8 +8,24 @@
             [ez-wire.form.template :as form.template]
             [ez-wire.form.validation :as form.validation]
             [ez-wire.form.wire :as form.wire]
+            [ez-wire.form.wizard :as form.wizard]
             [reagent.core :refer [atom] :as r]
             [re-frame.core :as rf]))
+
+
+(rf/reg-sub      ::error       (fn [db [_ id field-name]]
+                                 (get-in db [::error id field-name] [])))
+(rf/reg-sub      ::on-valid    (fn [db [_ id]]
+                                 (get-in db [::on-valid id] ::invalid)))
+(rf/reg-sub      ::form.wizard/current-step (fn [db [_ id]]
+                                              (get-in db [::wizard id :current-step])))
+
+(rf/reg-event-db ::error       (fn [db [_ id field-name errors]]
+                                 (assoc-in db [::error id field-name] errors)))
+(rf/reg-event-db ::on-valid    (fn [db [_ id new-state]]
+                                 (assoc-in db [::on-valid id] new-state)))
+(rf/reg-event-db ::form.wizard/current-step (fn [db [_ id step]]
+                                              (assoc-in db [::wizard id :current-step] step)))
 
 
 (defmulti ^:private get-field-fn (fn [field]
@@ -104,19 +120,19 @@
                              (assoc out name (get-default-value field)))
                            {} map-fields))
         form (map->Form {:fields  map-fields
-                             ;; field-ks control which fields are to be rendered for
-                             ;; everything form supports with the exception of wiring
-                             :field-ks (mapv :name fields)
-                             :options options
-                             :id      (:id options)
-                             :errors  errors
-                             :data    data})]
+                         ;; field-ks control which fields are to be rendered for
+                         ;; everything form supports with the exception of wiring
+                         :field-ks (mapv :name fields)
+                         :options options
+                         :id      (:id options)
+                         :errors  errors
+                         :data    data})]
     (add-validation-watcher form)
     form))
 
 
-(def as-list form.list/as-list)
-(def as-paragraph form.paragraph/as-paragraph)
-(def as-table form.table/as-table)
-(def as-template form.template/as-template)
+(def as-list (form.wizard/wizard form.list/as-list))
+(def as-paragraph (form.wizard/wizard form.paragraph/as-paragraph))
+(def as-table (form.wizard/wizard form.table/as-table))
+(def as-template (form.wizard/wizard form.template/as-template))
 (def as-wire form.wire/as-wire)
