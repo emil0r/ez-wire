@@ -5,6 +5,7 @@
             [ez-wire.form.list :as form.list]
             [ez-wire.form.paragraph :as form.paragraph]
             [ez-wire.form.table :as form.table]
+            [ez-wire.form.template :as form.template]
             [ez-wire.form.validation :as form.validation]
             [reagent.core :refer [atom] :as r]
             [re-frame.core :as rf]))
@@ -116,3 +117,4 @@
 (def as-list form.list/as-list)
 (def as-paragraph form.paragraph/as-paragraph)
 (def as-table form.table/as-table)
+(def as-template form.template/as-template)
