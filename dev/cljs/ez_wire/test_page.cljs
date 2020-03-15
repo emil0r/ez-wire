@@ -21,7 +21,7 @@
 (validation/def ::my-validation
   (spec/or :int int? :blank str/blank?)
   (fn [{:keys [value]}]
-    (str "current value is " value)))
+    [:div "current value is " [:strong "'" value "'"] " and it needs to be an integer"]))
 (validation/def ::stupid
   (spec/and string?
             #(> (count %) 2))
@@ -38,7 +38,20 @@
     :name :test
     :label "My test input"
     :help "My help text for test input"
-    :text "My info text"}])
+    :text "My info text"}
+   {:element e/input
+    :adapter fomantic-adapter
+    :placeholder "Second"
+    :validation [::my-validation]
+    :value ""
+    :name :test2}
+   {:element e/input
+    :adapter fomantic-adapter
+    :placeholder "Third"
+    :validation [::my-validation]
+    :value ""
+    :wiring [:tr [:td "bar"] [:td :$field]]
+    :name :test3}])
 
 
 (defn home-page []
