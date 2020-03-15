@@ -12,3 +12,28 @@
 .error {
     color: red;
 }
+
+
+.right, .left {
+    padding: 10px;
+}
+.left {
+    float: left;
+    width: 20%;
+    position: relative;
+}
+.alert-button {
+    position: fixed;
+    padding: 1rem 2rem;
+    background-color: #0000aa;
+    color: white;
+    font-size: 120%;
+}
+.right {
+    float: right;
+    width: 80%;
+}
+
+.clear {
+    clear: both;
+}

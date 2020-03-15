@@ -60,11 +60,19 @@
     (fn []
       [:div
        [:div "Hi there"]
-       
-       [:div
-        [:h2 "My testform"]
-        [form/as-table {} form]
-        [:> e/button {:on-click #(js/alert (pr-str @(:data form)))} "Alert data"]]])))
+       [:div.left
+        [:> e/button
+         {:class "alert-button"
+          :on-click #(js/alert (pr-str @(:data form)))}
+         "Alert data"]]
+       [:div.right
+        [:div
+         [:h2 "My testform [table]"]
+         [form/as-table {} form]]
+        [:div
+         [:h2 "My testform [list]"]
+         [form/as-list {} form]]]
+       [:div.clear]])))
 
 (defn mount-root []
   (r/render [home-page] (.getElementById js/document "app")))
