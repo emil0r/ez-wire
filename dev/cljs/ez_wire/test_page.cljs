@@ -83,6 +83,19 @@
                                        :$errors
                                        :$text
                                        :$help]}
+          form]]
+        [:div
+         [:h2 "My testform [wire]"]
+         [form/as-wire {:wiring
+                        [:div.wire
+                         [:div.number1
+                          :$test.label
+                          :$test.field
+                          :$test.errors]
+                         [:div.number2
+                          :$test2.label
+                          :$test2.field
+                          :$test2.errors]]}
           form]]]
        [:div.clear]])))
 

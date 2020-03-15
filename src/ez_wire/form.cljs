@@ -7,6 +7,7 @@
             [ez-wire.form.table :as form.table]
             [ez-wire.form.template :as form.template]
             [ez-wire.form.validation :as form.validation]
+            [ez-wire.form.wire :as form.wire]
             [reagent.core :refer [atom] :as r]
             [re-frame.core :as rf]))
 
@@ -118,3 +119,4 @@
 (def as-paragraph form.paragraph/as-paragraph)
 (def as-table form.table/as-table)
 (def as-template form.template/as-template)
+(def as-wire form.wire/as-wire)
