@@ -3,6 +3,7 @@
             [ez-wire.form.elements]
             [ez-wire.form.protocols :as form.protocols :refer [valid? get-error-message]]
             [ez-wire.form.list :as form.list]
+            [ez-wire.form.paragraph :as form.paragraph]
             [ez-wire.form.table :as form.table]
             [ez-wire.form.validation :as form.validation]
             [reagent.core :refer [atom] :as r]
@@ -113,4 +114,5 @@
 
 
 (def as-list form.list/as-list)
+(def as-paragraph form.paragraph/as-paragraph)
 (def as-table form.table/as-table)

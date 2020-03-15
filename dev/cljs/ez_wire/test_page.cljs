@@ -71,7 +71,10 @@
          [form/as-table {} form]]
         [:div
          [:h2 "My testform [list]"]
-         [form/as-list {} form]]]
+         [form/as-list {} form]]
+        [:div
+         [:h2 "My testform [paragraph]"]
+         [form/as-paragraph {} form]]]
        [:div.clear]])))
 
 (defn mount-root []
