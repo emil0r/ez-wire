@@ -1,15 +1,97 @@
 = ez-wire
 
-Wire things together.
+Wire things together, in Clojurescript. Meant to be used together with reagent and re-frame.
 
-== Usage
+* form
 
-FIXME
+== form
+
+form handles generic rendering, form validation, i18n and ties in with re-frame.
+
+Define a form, give it which elements to render the input field with, and then render it as a table, paragraphs, list, template or define it yourself to the t. Table, paragraph, list and template are all supported as wizards.
+
+Form validation and i18n are supported via protocols and have default implementations.
+
+[source,clojure]
+----
+(myns
+  (:require [clojure.spec.alpha :as spec]
+            [clojure.string :as str]
+            [ez-wire.form :as form]
+            [ez-wire.form.validation :as validation]
+            [myns.fomantic.elements :as e] ; <-- elements from fomantic UI. e/input is a standard input field from fomantic UI
+            [reagent.core :as r])
+  (:require-macros [ez-wire.form.macros :refer [defform]]))
+
+;; we adapt our input to ez-wire.form's internal data model
+;; NOTE: this can be used to create an input that automatically converts to another data format (say an integer, instead of a string)
+(defn fomantic-adapter [{:keys [element name] :as field}]
+  (let [f (r/adapt-react-class element)] ; <-- adapt to reagent
+    ;; IMPORTANT NOTE: model is a cursor into a RAtom that is created internally whenever a defform is called
+    (fn [{:keys [value model] :as data}] ; <-- this is the data that is sent in as default to all elements form an ez-wire form
+                                         ; it correspends with the data that is defined in defform
+      [f (merge {:value @model ; <-- get our value
+                 :on-change #(reset! model (-> % .-target .-value))} ; <-- how we update
+                (select-keys data [:id :placeholder]))])))
+
+;; validation can be anything and is supported via protocols.
+;; in this case the default implementation uses spec (version 1) and a error message (fn or string/keyword)
+;; i18n is also supported via protocols and supports nil, strings and keywords by default. extend to any i18n library you wish
+(validation/def ::my-validation
+  (spec/or :int int? :blank str/blank?)
+  (fn [{:keys [value]}]
+    [:div "current value is " [:strong "'" value "'"] " and it needs to be an integer"]))
+
+(validation/def ::stupid
+  (spec/and string?
+            #(> (count %) 2))
+  "Need to be a string and more than two characters")
+  
+
+(defform testform ; <-- creates a function by name of testform
+  {} ; <-- options
+  [{:element e/input ; <-- which element do we render with
+    :adapter fomantic-adapter ; <-- any adapter, if needed
+    :placeholder "foobar" ; <-- ends up being sent in
+    :validation [::my-validation ::stupid] ; <-- our validations we wish to perform
+    :value "test" ; <-- default value
+    :name :test ; <-- the name of our field
+    :label "My test input" ; <-- label input
+    :help "My help text for test input" ; <-- help text
+    :text "My info text"} ; <-- info text
+    {:element e/input
+    :adapter fomantic-adapter
+    :placeholder "Second"
+    :validation [::my-validation]
+    :value ""
+    :name :test2}
+   {:element e/input
+    :adapter fomantic-adapter
+    :placeholder "Third"
+    :validation [::my-validation]
+    :value ""
+    :wiring [:tr [:td "bar"] [:td :$field]] ; <-- override the default layout
+    :name :test3}])
+    
+    
+(defn home-page []
+  (let [data {:test "my test data"}
+        form (testform ; <-- our form called as a function
+              {} ; <-- options that can be used to override the default options defined in defform
+              data) ; <-- our data to be passed in to our form
+        ]
+        (fn []
+          [:div
+            [:h2 "My form (as a table)"]
+            [form/as-table {} form]
+            [:button {:on-click #(js/alert @data)} "Alert data"]])))
+
+----
+
 
 == License
 
 Copyright © 2020 Emil Bengtsson
 
 ___
-
 Coram Deo
