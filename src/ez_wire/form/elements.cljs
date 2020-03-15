@@ -4,4 +4,7 @@
 (defn error-element [{:keys [model class]}]
   [:<>
    (for [error @model]
-     [:div {:class class :key error} (t error)])])
+     [:div {:class class :key error}
+      (if (true? (:ez-wire.form/by-fn? (meta error)))
+        error
+        (t error))])])

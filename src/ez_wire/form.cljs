@@ -24,7 +24,7 @@
 
 (defn- finalize-error-message [context error-message]
   (if (fn? error-message)
-    (error-message context)
+    (with-meta (error-message context) {::by-fn? true})
     error-message))
 
 (defn- get-error-messages [{:keys [validation] :as field} value form]

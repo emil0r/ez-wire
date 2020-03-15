@@ -15,4 +15,8 @@
   nil
   (t
     ([k] k)
-    ([k args] k)))
+    ([k args] k))
+  cljs.core/Keyword
+  (t
+    ([k] (name k))
+    ([k args] (name k))))
