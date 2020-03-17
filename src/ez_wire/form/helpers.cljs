@@ -6,7 +6,7 @@
   "Helper function for checking validity of the sub ::on-valid. Accepts a form, subscription or value"
   [v]
   (cond (record? v)
-        (not= @(rf/subscribe [:ez-wire.form/on-valid (:id v)]) :ui.wire.form/invalid)
+        (not= @(rf/subscribe [:ez-wire.form/on-valid (:id v)]) :ez-wire.form/invalid)
 
         (util/deref? v)
         (not= @v :ez-wire.form/invalid)
