@@ -3,11 +3,11 @@
             [clojure.string :as str]
             [reagent.core :as r]
             [ez-wire.element :as e]
-            [ez-wire.form :as form :refer [defform]]
-            [ez-wire.form.validation :as validation]
+            [ez-wire.form :as form]
             [ez-wire.util :as util]
             [re-frame.core :as rf])
-  (:require-macros [ez-wire.form.macros :refer [defform]]))
+  (:require-macros [ez-wire.form.macros :refer [defform]]
+                   [ez-wire.form.validation :refer [defvalidation]]))
 
 (enable-console-print!)
 
@@ -18,11 +18,11 @@
                  :on-change #(reset! model (-> % .-target .-value))}
                 (select-keys data [:id :placeholder]))])))
 
-(validation/def ::my-validation
+(defvalidation ::my-validation
   (spec/or :int int? :blank str/blank?)
   (fn [{:keys [value]}]
     [:div "current value is " [:strong "'" value "'"] " and it needs to be an integer"]))
-(validation/def ::stupid
+(defvalidation ::stupid
   (spec/and string?
             #(> (count %) 2))
   "Need to be a string and more than two characters")

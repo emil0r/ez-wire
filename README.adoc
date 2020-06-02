@@ -18,10 +18,10 @@ Form validation and i18n are supported via protocols and have default implementa
   (:require [clojure.spec.alpha :as spec]
             [clojure.string :as str]
             [ez-wire.form :as form]
-            [ez-wire.form.validation :as validation]
             [myns.fomantic.elements :as e] ; <-- elements from fomantic UI. e/input is a standard input field from fomantic UI
             [reagent.core :as r])
-  (:require-macros [ez-wire.form.macros :refer [defform]]))
+  (:require-macros [ez-wire.form.macros :refer [defform]]
+                   [ez-wire.form.validation :refer [defvalidation]]))
 
 ;; we adapt our input to ez-wire.form's internal data model
 ;; NOTE: this can be used to create an input that automatically converts to another data format (say an integer, instead of a string)
@@ -37,12 +37,12 @@ Form validation and i18n are supported via protocols and have default implementa
 ;; validation can be anything and is supported via protocols.
 ;; in this case the default implementation uses spec (version 1) and a error message (fn or string/keyword)
 ;; i18n is also supported via protocols and supports nil, strings and keywords by default. extend to any i18n library you wish
-(validation/def ::my-validation
+(defvalidation ::my-validation
   (spec/or :int int? :blank str/blank?)
   (fn [{:keys [value]}]
     [:div "current value is " [:strong "'" value "'"] " and it needs to be an integer"]))
 
-(validation/def ::stupid
+(defvalidation ::stupid
   (spec/and string?
             #(> (count %) 2))
   "Need to be a string and more than two characters")
