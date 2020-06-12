@@ -88,6 +88,22 @@ Form validation and i18n are supported via protocols and have default implementa
 
 ----
 
+External errors can also be added.
+
+[source,clojure]
+----
+(require '[ez-wire.form.helpers :as helpers])
+
+(let [myform (testform {})]
+ ;; this will add an external error message
+ ;; the last parameter valid? controls whether the error message will pass the validity control
+ ;; set to true to always pass
+ ;; set to false to force a manual removal
+ (helpers/add-external-error form :my-field :my-id-of-the-error-message "My actual error message" true) ;; [form field-name id error-message valid?]
+ (helpers/remove-external-error form :my-field :my-id-of-the-error-message))
+
+----
+
 
 == License
 

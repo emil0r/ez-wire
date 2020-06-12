@@ -4,6 +4,7 @@
             [reagent.core :as r]
             [ez-wire.element :as e]
             [ez-wire.form :as form]
+            [ez-wire.form.helpers :as helpers]
             [ez-wire.util :as util]
             [re-frame.core :as rf])
   (:require-macros [ez-wire.form.macros :refer [defform]]
@@ -70,10 +71,27 @@
       [:div
        [:div "Hi there"]
        [:div.left
+        [:div
+         [:> e/button
+          {:class "add-error"
+           :on-click #(helpers/add-external-error form :test :foo "This is external error A" true)}
+          "Add external passing error"]
+         [:> e/button
+          {:class "add-error"
+           :on-click #(helpers/add-external-error form :test :bar "This is external error B" false)}
+          "Add external non-passing error"]
+         [:> e/button
+          {:class "remove-error"
+           :on-click #(helpers/remove-external-error form :test :bar)}
+          "Remove external non-passing error"]]
         [:> e/button
          {:class "alert-button"
           :on-click #(js/alert (pr-str @(:data form)))}
-         "Alert data"]]
+         "Alert data"]
+        [:div {:class "internal-info"}
+         [:h2 "Internal state of the form"]
+         (when @(:data form)
+             (pr-str form))]]
        [:div.right
         [:div
          [:h2 "My testform [table]"]

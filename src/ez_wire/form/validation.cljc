@@ -25,3 +25,16 @@
                      (every? #(protocols/valid? % value form) validation))
              (get-error-message [validation value form]
                                 (map #(get @errors % nil) validation))]))
+
+(defrecord ExternalError [id message valid?]
+  protocols/IValidate
+  (valid? [this value form]
+    (:valid? this))
+  (get-error-message [this value form]
+    message))
+
+(defn external-error [id message valid?]
+  (assert (boolean? valid?) "pass? needs to be a boolean")
+  (map->ExternalError {:id id
+                       :message message
+                       :valid? valid?}))

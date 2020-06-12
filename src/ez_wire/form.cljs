@@ -75,6 +75,21 @@
         ;; no validation defined, give back the out value
         out))))
 
+(defn- get-external-errors [form field-errors]
+  (reduce (fn [out [k same-value? errors]]
+            (if-let [external-errors (get-in @(:extra form) [k :field-errors])]
+              (let [trimmed-external-errors (remove #(valid? % nil nil) external-errors)]
+                ;; run a check if we need to update the external errors
+                ;; because some of them are being removed
+                (if-not (= (count external-errors)
+                           (count trimmed-external-errors))
+                  (swap! (:extra form) assoc-in [k :field-errors] trimmed-external-errors))
+                (conj out [k same-value? (->> trimmed-external-errors
+                                              (map #(get-error-message % nil nil))
+                                              (into errors))]))
+              (conj out [k same-value? errors])))
+          [] field-errors))
+
 (defn- add-validation-watcher
   "Add validation checks for the RAtom as it changes"
   [form]
@@ -82,7 +97,8 @@
     (add-watch (:data form) (str "form-watcher-" (:id form))
                (fn [_ _ old-state new-state]
                  ;; get all errors for all fields
-                 (let [field-errors (reduce (get-validation-errors form old-state) [] new-state)]
+                 (let [field-errors (->> (reduce (get-validation-errors form old-state) [] new-state)
+                                         (get-external-errors form))]
                    ;; update the RAtoms for the error map
                    (doseq [[k same-value? errors] field-errors]
                      (when-not same-value?
@@ -125,6 +141,7 @@
                          :field-ks (mapv :name fields)
                          :options options
                          :id      (:id options)
+                         :extra   (atom {})
                          :errors  errors
                          :data    data})]
     (add-validation-watcher form)
