@@ -5,9 +5,12 @@
 
 (defonce errors (atom {}))
 
-(defmacro defvalidation [spec-k spec-v t-fn-or-keyword]
-  `(do (spec/def ~spec-k ~spec-v)
-       (swap! errors assoc ~spec-k ~t-fn-or-keyword)))
+(defmacro defvalidation
+  ([spec-k t-fn-or-keyword]
+   `(swap! errors assoc ~spec-k ~t-fn-or-keyword))
+  ([spec-k spec-v t-fn-or-keyword]
+   `(do (spec/def ~spec-k ~spec-v)
+        (swap! errors assoc ~spec-k ~t-fn-or-keyword))))
 
 (extend-protocol protocols/IValidate
   nil
