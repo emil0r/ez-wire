@@ -132,9 +132,9 @@
         errors (reduce (fn [out [name _]]
                          (assoc out name (atom [])))
                        {} map-fields)
-        data (atom (reduce (fn [out [name field]]
-                             (assoc out name (get-default-value field)))
-                           {} map-fields))
+        -data (atom (reduce (fn [out [name field]]
+                              (assoc out name (get data name (get-default-value field))))
+                            {} map-fields))
         form (map->Form {:fields  map-fields
                          ;; field-ks control which fields are to be rendered for
                          ;; everything form supports with the exception of wiring
@@ -143,7 +143,7 @@
                          :id      (:id options)
                          :extra   (atom {})
                          :errors  errors
-                         :data    data})]
+                         :data    -data})]
     (add-validation-watcher form)
     form))
 
