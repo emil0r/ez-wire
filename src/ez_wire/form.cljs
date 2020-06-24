@@ -55,28 +55,24 @@
     (->> v
          (remove #(valid? % value form))
          (map (comp #(finalize-error-message context %)
-                    #(get-error-message % value form))))))
+                    #(get-error-message % value form)))
+         (remove nil?))))
 
 (defn- get-validation-errors [form old-state]
   (fn [out [k v]]
     (let [field (get-in form [:fields k])]
-      ;; when there is a validation
-      ;; AND, there has been a change in value
-      (if (:validation field)
-        ;; same-value? is used to determine if we should do updates to errors
-        ;; we still need all the errors for on-valid to properly fire
-        (let [same-value? (= v (get old-state k))]
-          (if (valid? (:validation field) v form)
-            ;; if the validation is valid we change it to hold zero errors
-            (conj out [k same-value? []])
-            ;; if the validation is invalid we give an explanation to
-            ;; what's wrong
-            (conj out [k same-value? (get-error-messages field v form)])))
-        ;; no validation defined, give back the out value
-        out))))
+      ;; update? is used to determine if we should do updates to errors
+      ;; we still need all the errors for on-valid to properly fire
+      (let [update? (not= v (get old-state k))]
+        (if (valid? (:validation field) v form)
+          ;; if the validation is valid we change it to hold zero errors
+          (conj out [k update? []])
+          ;; if the validation is invalid we give an explanation to
+          ;; what's wrong
+          (conj out [k update? (get-error-messages field v form)]))))))
 
 (defn- get-external-errors [form field-errors]
-  (reduce (fn [out [k same-value? errors]]
+  (reduce (fn [out [k update? errors]]
             (if-let [external-errors (get-in @(:extra form) [k :field-errors])]
               (let [trimmed-external-errors (remove #(valid? % nil nil) external-errors)]
                 ;; run a check if we need to update the external errors
@@ -84,10 +80,10 @@
                 (if-not (= (count external-errors)
                            (count trimmed-external-errors))
                   (swap! (:extra form) assoc-in [k :field-errors] trimmed-external-errors))
-                (conj out [k same-value? (->> trimmed-external-errors
+                (conj out [k update? (->> trimmed-external-errors
                                               (map #(get-error-message % nil nil))
                                               (into errors))]))
-              (conj out [k same-value? errors])))
+              (conj out [k update? errors])))
           [] field-errors))
 
 (defn- add-validation-watcher
@@ -100,8 +96,8 @@
                  (let [field-errors (->> (reduce (get-validation-errors form old-state) [] new-state)
                                          (get-external-errors form))]
                    ;; update the RAtoms for the error map
-                   (doseq [[k same-value? errors] field-errors]
-                     (when-not same-value?
+                   (doseq [[k update? errors] field-errors]
+                     (when update?
                        (rf/dispatch [::error (:id form) k errors])
                        (reset! (get-in form [:errors k]) errors)))
                    ;; if there are no errors then the form is valid and we can fire off the function
@@ -111,8 +107,8 @@
                        (on-valid to-send))
                      (rf/dispatch [::on-valid (:id form) to-send])))))))
 
-(defn- get-default-value [field]
-  (or (:value field) (util/deref-or-value (:model field))))
+(defn- get-default-value [data name field]
+  (get data name (:value field)))
 
 (defrecord Form [fields field-ks options id errors data meta])
 (defn form [fields form-options override-options data]
@@ -123,18 +119,20 @@
                         (map (fn [{:keys [name id error-element] :as field}]
                                [name (assoc field
                                             :field-fn (get-field-fn field)
+                                            :value (get-default-value data name field)
                                             :error-element (or error-element
                                                                ez-wire.form.elements/error-element)
                                             ;; always generate id in the form so we
                                             ;; can reference it later
                                             :id (or id (util/gen-id)))]))
                         (into (array-map)))
+        -data (reduce (fn [out [name field]]
+                        (assoc out name (get-default-value data name field)))
+                      {} map-fields)
         errors (reduce (fn [out [name _]]
                          (assoc out name (atom [])))
                        {} map-fields)
-        -data (atom (reduce (fn [out [name field]]
-                              (assoc out name (get data name (get-default-value field))))
-                            {} map-fields))
+        
         form (map->Form {:fields  map-fields
                          ;; field-ks control which fields are to be rendered for
                          ;; everything form supports with the exception of wiring
@@ -143,8 +141,10 @@
                          :id      (:id options)
                          :extra   (atom {})
                          :errors  errors
-                         :data    -data})]
+                         :data    (atom {})})]
     (add-validation-watcher form)
+    ;; run validation once before we send back our form
+    (reset! (:data form) -data)
     form))
 
 

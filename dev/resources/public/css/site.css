@@ -25,12 +25,15 @@
 .add-error, .remove-error {
     margin: 10px 5px;
 }
-.alert-button {
+.alert-button, .valid-button {
     position: fixed;
     padding: 1rem 2rem;
     background-color: #0000aa;
     color: white;
     font-size: 120%;
+}
+.valid-button {
+    left: 12rem;
 }
 .internal-info {
     max-width: 50%;

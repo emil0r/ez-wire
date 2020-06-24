@@ -18,73 +18,93 @@ Form validation and i18n are supported via protocols and have default implementa
   (:require [clojure.spec.alpha :as spec]
             [clojure.string :as str]
             [ez-wire.form :as form]
+            [ez-wire.form.helpers :refer [valid?]]
             [myns.fomantic.elements :as e] ; <-- elements from fomantic UI. e/input is a standard input field from fomantic UI
-            [reagent.core :as r])
+            [reagent.core :as r]
+            [re-frame.core :as rf])
   (:require-macros [ez-wire.form.macros :refer [defform]]
                    [ez-wire.form.validation :refer [defvalidation]]))
 
 ;; we adapt our input to ez-wire.form's internal data model
-;; NOTE: this can be used to create an input that automatically converts to another data format (say an integer, instead of a string)
-(defn fomantic-adapter [{:keys [element name] :as field}]
+(defn text-adapter [{:keys [element] :as field}]
   (let [f (r/adapt-react-class element)] ; <-- adapt to reagent
     ;; IMPORTANT NOTE: model is a cursor into a RAtom that is created internally whenever a defform is called
     (fn [{:keys [value model] :as data}] ; <-- this is the data that is sent in as default to all elements form an ez-wire form
                                          ; it correspends with the data that is defined in defform
-      [f (merge {:value @model ; <-- get our value
+      [f (merge {:defaultValue value ; <-- set default value. this is so that we don't get a jumping cursor
                  :on-change #(reset! model (-> % .-target .-value))} ; <-- how we update
                 (select-keys data [:id :placeholder]))])))
+
+;; an adapter for integers
+(defn integer-adapter [{:keys [element] :as field}]
+  (let [f (r/adapt-react-class element)]
+    (fn [{:keys [model value] :as data}]
+      [f (merge {:defaultValue (str value)
+                 :on-change #(let [value (-> % .-target .-value)
+                                   int-value (js/parseInt value)]
+                               (if-not (js/isNaN int-value)
+                                 (reset! model int-value)
+                                 (reset! model value)))}
+                (select-keys data [:id :placeholder]))])))
+
 
 ;; validation can be anything and is supported via protocols.
 ;; in this case the default implementation uses spec (version 1) and a error message (fn or string/keyword)
 ;; i18n is also supported via protocols and supports nil, strings and keywords by default. extend to any i18n library you wish
-(defvalidation ::my-validation
+(defvalidation ::int
   (spec/or :int int? :blank str/blank?)
   (fn [{:keys [value]}]
     [:div "current value is " [:strong "'" value "'"] " and it needs to be an integer"]))
-
-(defvalidation ::stupid
+(defvalidation ::percent
+  #(and (>= % 0) (<= % 100))
+  (fn [{:keys [value]}]
+    [:div "current value is " [:strong "'" value "'"] " and it needs to be between 0 and 100"]))
+(defvalidation ::long-string
   (spec/and string?
             #(> (count %) 2))
-  "Need to be a string and more than two characters")
-  
+  "Need to be a string and more than two characters")  
 
 (defform testform ; <-- creates a function by name of testform
   {} ; <-- options
   [{:element e/input ; <-- which element do we render with
-    :adapter fomantic-adapter ; <-- any adapter, if needed
+    :adapter text-adapter ; <-- any adapter, if needed
     :placeholder "foobar" ; <-- ends up being sent in
-    :validation [::my-validation ::stupid] ; <-- our validations we wish to perform
+    :validation [::long-string] ; <-- our validations we wish to perform
     :value "test" ; <-- default value
-    :name :test ; <-- the name of our field
+    :name :test1 ; <-- the name of our field
     :label "My test input" ; <-- label input
     :help "My help text for test input" ; <-- help text
     :text "My info text"} ; <-- info text
     {:element e/input
-    :adapter fomantic-adapter
-    :placeholder "Second"
-    :validation [::my-validation]
+    :adapter integer-adapter
+    :placeholder "Numbers"
+    :validation [::int ::percent] ; <-- we can have multiple validations
     :value ""
     :name :test2}
    {:element e/input
-    :adapter fomantic-adapter
+    :adapter text-adapter
     :placeholder "Third"
-    :validation [::my-validation]
     :value ""
     :wiring [:tr [:td "bar"] [:td :$field]] ; <-- override the default layout
     :name :test3}])
     
     
 (defn home-page []
-  (let [data {:test "my test data"}
+  (let [data {:test1 "my test data"
+              :test2 "Faulty data"}
         form (testform ; <-- our form called as a function
               {} ; <-- options that can be used to override the default options defined in defform
               data) ; <-- our data to be passed in to our form
-        ]
+        ;; subscription to validity of the form. if valid it returns the
+        ;; data, if invalid it returns :ez-wire.form/invalid
+        valid-form (rf/subscribe [::form/on-valid (:id form)])]
         (fn []
           [:div
             [:h2 "My form (as a table)"]
             [form/as-table {} form]
-            [:button {:on-click #(js/alert @data)} "Alert data"]])))
+            [:button {:on-click #(js/alert @valid-form)} "Alert data"]
+            (when (valid? valid-form)
+              [:div "Form is valid")])))
 
 ----
 
