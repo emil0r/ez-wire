@@ -5,7 +5,7 @@
             [ez-wire.util :as util]))
 
 (defn- ->kw [name k]
-  (keyword (str "$" (clojure.core/name name) "." (clojure.core/name k))))
+  (keyword (str "$" (subs (str name) 1) "." (clojure.core/name k))))
 
 (defn- assemble-body [{:keys [wiring]} {:keys [fields] :as form-map} content]
   (let [default-map (if content

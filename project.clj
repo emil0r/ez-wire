@@ -1,4 +1,4 @@
-(defproject ez-wire "0.2.0-alpha4"
+(defproject ez-wire "0.2.0-alpha5"
 
   :description "Wiring galore"
 
