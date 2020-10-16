@@ -4,6 +4,13 @@ Wire things together, in Clojurescript. Meant to be used together with reagent a
 
 * form
 
+== dependancy
+
+[source,clojure]
+----
+[ez-wire "0.2.0"]
+----
+
 == form
 
 form handles generic rendering, form validation, i18n and ties in with re-frame.
