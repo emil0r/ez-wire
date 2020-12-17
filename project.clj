@@ -1,4 +1,4 @@
-(defproject ez-wire "0.2.0"
+(defproject ez-wire "0.2.1-SNAPSHOT"
 
   :description "Wiring galore"
 
@@ -59,6 +59,17 @@
                                 :asset-path    "/js/out"
                                 :output-to     "target/cljsbuild/public/js/app.js"
                                 :output-dir    "target/cljsbuild/public/js/out"
+                                :source-map-timestamp true
+                                :source-map    true
+                                :optimizations :none
+                                :pretty-print  true}}
+                :demo
+                {:source-paths ["src" "demo/src"]
+                 :figwheel     {:on-jsload "demo.core/start"}
+                 :compiler     {:main          demo.core
+                                :asset-path    "js/out"
+                                :output-to     "demo/resources/js/app.js"
+                                :output-dir    "demo/resources/js/out"
                                 :source-map-timestamp true
                                 :source-map    true
                                 :optimizations :none
