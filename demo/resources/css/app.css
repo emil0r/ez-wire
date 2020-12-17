@@ -1,0 +1,93 @@
+.clearfix:before, .clearfix:after {
+    content: " ";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.demo-example {
+    background-color: #f6f6f5;
+}
+
+.demo-source {
+    background-color: #fbfbfa;
+    color: rgba(0, 0, 0, 0.75);
+}
+
+.demo-source pre {
+    font-family: Consolas, Menlo, Courier, monospace;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.demo-example div, .demo-example p {
+    color: rgba(0, 0, 0, 0.6);
+    line-height: 1.2em;
+}
+
+.demo-example, .demo-source {
+    margin: 29px -60px;
+    padding: 29px 60px;
+}
+
+.demo-example + .demo-source {
+    margin-top: -29px;
+}
+
+.demo-heading {
+    margin-top: 0;
+    color: #aaa;
+    font-size: 14px;
+    line-height: 29px;
+    margin-top: 3px;
+}
+
+.demo-example-hide {
+    margin-top: 3px;
+    float: right;
+    cursor: pointer;
+    color: #bbb;
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+.title, .subtitle {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+h3, h4, h5 {
+    font-weight: bold;
+}
+
+h4, h5 {
+    margin-bottom: 0.5rem;
+}
+.requirements {
+    margin-bottom: 1rem;
+}
+
+.requirements th,
+.requirements td {
+    padding: 3px 8px;
+}
+
+.requirements th {
+    color: orange;
+}
+
+strong {
+    color: orange;
+}
+
+strong.ns {
+    color: green;
+}
+
+strong.args {
+    color: blue;
+}
