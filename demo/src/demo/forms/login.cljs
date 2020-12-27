@@ -1,4 +1,4 @@
-(ns demo.stages.one
+(ns demo.forms.login
   (:require [demo.common :refer [demo-component code]]
             [demo.syntax :as syntax]
             [ez-wire.form.helpers :refer [valid?]]
@@ -29,8 +29,6 @@
     :placeholder "Input your password"
     :name :password}])
 
-
-
 (defn show-inputs []
   [:<>
    [input-text {:model (r/atom nil) :placeholder "My custom placeholder 1"}]
@@ -47,9 +45,7 @@
        [:p "We subscribe to the data from ez-wire.form using re-frame"]
        [:pre (pr-str @data-form)]])))
 
-
-
-(defn form-one []
+(defn form-login []
   [:div
    [demo-component {:comp show-inputs
                     :src (syntax/src-of [:input-text :input-password :show-inputs])}]

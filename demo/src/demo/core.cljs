@@ -1,7 +1,7 @@
 (ns demo.core
   (:require [clojure.string :as str]
             [demo.common :refer [code]]
-            [demo.stages.one :refer [form-one]]
+            [demo.forms.login :refer [form-login]]
             [reagent.core :as r]
             [reagent.dom :as rdom]))
 
@@ -19,7 +19,7 @@
       [:tr [:th (pr-str k)] [:td explanation]])])
 
 (defn explain-form []
-  [:div
+  [:div.form
    [:h4.subtitle "Form"]
    [:p "A form is defined using " [:strong "defform"] ", which is a macro imported from " [:strong.ns "ez-wire.form.macros"]]
    [:p "In our namespace we import the " [:strong "defform"] " macro and " [:strong.ns "ez-wire.form"]]
@@ -27,6 +27,11 @@
             (:require [ez-wire.form :as form])
             (:require-macros [ez-wire.form.macros :refer [defform]])))
    [:p "We define our form and name it loginform. We have options as the second argument and a list of fields for the third argument. The fields hold a text input and a password input."]
+   [:pre>code.clojure "(defform name-of-form 
+  options 
+  [field1 
+   field2 
+   field3])"]
    (code '(defform loginform
             {}
             [{:element input-text
@@ -96,7 +101,7 @@
                        [:ez-wire.form.wizard/current-step [:div "Subscription that takes " [:strong.args "[:ez-wire.form.wizard/current-step id-of-form]"] ". Returns the current step as defined in the wizard setting in the options map for the form."]]])])
 
 (defn explain-fields []
-  [:div
+  [:div.fields
    [:h4 "Fields"]
    [:p "A field in a form is a map that holds relevant meta data."]
    [:h5 "Required keys in a field"]
@@ -126,9 +131,34 @@
    (explanation-table [[:model [:div "A reactive model that can be swapped, reset however you wish. " [:strong ":model"] " is an RCursor that is mapped onto the field in the RAtom that is initiated with every new instance of a form. Updating the model, will also update the data RAtom in the form."]]
                        [:error-element [:div "If no error-element is given, the default implementation will be used. Found in " [:strong.ns "ez.wire.form.elements/error-element"]]]])])
 
-(defn explain-validation [])
+(defn explain-validation []
+  [:div.validation
+   [:h4 "Validation"]
+   [:p "Validation is implemented in ez-wire as a protocol in " [:strong.ns "ez-wire.form.protocols"] " and a macro in " [:strong.ns "ez-wire.form.validation"] ". Default protocol implementations are provided for nil, keywords and vectors."]
+   (code '(defprotocol IValidate
+            :extend-via-metadata true
+            (valid? [validation value form])
+            (get-error-message [validation value form])))
+   [:pre>code.clojure
+    "(defmacro defvalidation
+            ([spec-k t-fn-or-keyword]
+             `(swap! errors assoc ~spec-k ~t-fn-or-keyword))
+            ([spec-k spec-v t-fn-or-keyword]
+             `(do (spec/def ~spec-k ~spec-v)
+                  (swap! errors assoc ~spec-k ~t-fn-or-keyword))))"]
+   (code '(defvalidation ::my-spec ::my-error-message))
+   (code '(defvalidation ::my-spec string? ::my-error-message))
+   [:p "nil implements false for " [:strong "valid?"] " and nil for " [:strong "get-error-message"]]
+   [:p "keyword implements spec/valid? for " [:strong "valid?"] " and returns the " [:strong "t-fn-or-keyword"] " defined in the " [:strong "defvalidation"] " macro."]
+   [:p "vector implements a referral to the protocol, where each element in the vector is checked against the protocol. This holds true for both " [:strong "valid?"] " and " [:strong "get-error-message"]]])
 
-(defn explain-i18n [])
+(defn explain-i18n []
+  [:div.i18n
+   [:h4 "i18n (internationalization)"]
+   [:p "i18n is implemented in ez-wire as a protocol in " [:strong.ns "ez-wire.protocols"] ". It implements one method " [:strong "t"] ". It is up to the user of the library to make use of this, in order to adapt whichever i18n library that is used. By default nil, string and keyword are implemented. Examples for how to use i18n with a cljs i18n library are given below."]
+   (code '(defprotocol Ii18n
+            :extend-via-metadata true
+            (t [k] [k args])))])
 
 
 (defn concepts []
@@ -159,7 +189,7 @@
     
     [concepts]    
     [:ul.mt-6
-     (for [[heading comp] [["Login form" form-one]]]
+     (for [[heading comp] [["Login form" form-login]]]
        [:li {:id (create-link heading)}
         [:h3.subtitle heading]
         [comp]])]]])
