@@ -1,6 +1,7 @@
 (ns demo.core
   (:require [clojure.string :as str]
             [demo.common :refer [code]]
+            [demo.forms.flight :refer [form-flight]]
             [demo.forms.login :refer [form-login]]
             [reagent.core :as r]
             [reagent.dom :as rdom]))
@@ -13,7 +14,7 @@
       (str/replace #"\s" "-")))
 
 (defn- explanation-table [explanations]
-  [:table.requirements
+  [:table.requirements>tbody
     (for [[k explanation] explanations]
       ^{:key k}
       [:tr [:th (pr-str k)] [:td explanation]])])
@@ -189,10 +190,12 @@
     
     [concepts]    
     [:ul.mt-6
-     (for [[heading comp] [["Login form" form-login]]]
-       [:li {:id (create-link heading)}
-        [:h3.subtitle heading]
-        [comp]])]]])
+     (for [[heading comp] [["Login form" form-login]
+                           ["Flight form" form-flight]]]
+       (let [link (create-link heading)]
+         [:li {:id link :key link}
+          [:h3.subtitle heading]
+          [comp]]))]]])
 
 
 (defn ^:export init []

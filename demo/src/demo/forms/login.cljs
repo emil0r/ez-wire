@@ -1,12 +1,10 @@
 (ns demo.forms.login
   (:require [demo.common :refer [demo-component code]]
             [demo.syntax :as syntax]
-            [ez-wire.form.helpers :refer [valid?]]
             [ez-wire.form :as form]
             [reagent.core :as r]
             [re-frame.core :as rf])
-  (:require-macros [ez-wire.form.macros :refer [defform]]
-                   [ez-wire.form.validation :refer [defvalidation]]))
+  (:require-macros [ez-wire.form.macros :refer [defform]]))
 
 (defn input-text [{:keys [model placeholder]}]
   [:input.input {:type :text

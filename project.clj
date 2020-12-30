@@ -10,7 +10,7 @@
   :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
                  [org.clojure/clojurescript "1.10.597" :scope "provided"]
                  [re-frame "0.10.5" :scope "provided"]
-                 [reagent "0.8.1" :scope "provided"]]
+                 [reagent "1.0.0" :scope "provided"]]
 
   :repl-options {:init-ns ez-wire.core}
 
@@ -38,7 +38,8 @@
                [binaryage/devtools "0.9.10"]
                [cider/piggieback "0.4.1"]
                [figwheel-sidecar "0.5.18"]
-               [cljsjs/semantic-ui-react "0.88.1-0"]]
+               [cljsjs/semantic-ui-react "0.88.1-0"]
+               [cljsjs/antd "4.6.1-0"]]
 
               :source-paths ["src" "dev/clj" "dev/cljs"]
               :resource-paths ["resources" "dev/resources" "target/cljsbuild"]
