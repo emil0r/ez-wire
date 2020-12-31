@@ -2,7 +2,7 @@
   (:require [antd :as ant]
             [clojure.spec.alpha :as spec]
             [clojure.string :as str]
-            [demo.common :refer [demo-component code]]
+            [demo.common :refer [demo-component data]]
             [demo.syntax :as syntax]
             [ez-wire.form :as form]
             [ez-wire.form.helpers :refer [valid?]]
@@ -166,7 +166,7 @@
           (t :flight/book)]]
         [:div.column
          [:h4 "Data in the form"]
-         [:pre (with-out-str (cljs.pprint/pprint @data-form))]]]])))
+         [data @data-form]]]])))
 
 (defn form-flight []
   [:div.form-flight

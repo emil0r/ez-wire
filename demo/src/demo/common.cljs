@@ -28,3 +28,7 @@
 
 (defn code [input]
   [:pre>code.clojure (with-out-str (cljs.pprint/pprint input))])
+
+
+(defn data [input]
+  [:pre (with-out-str (cljs.pprint/pprint input))])
