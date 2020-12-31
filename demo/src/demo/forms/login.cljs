@@ -44,7 +44,7 @@
        [:pre (pr-str @data-form)]])))
 
 (defn form-login []
-  [:div
+  [:div.form-login
    [demo-component {:comp show-inputs
                     :src (syntax/src-of [:input-text :input-password :show-inputs])}]
    [demo-component {:comp component

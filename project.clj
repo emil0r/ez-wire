@@ -38,8 +38,11 @@
                [binaryage/devtools "0.9.10"]
                [cider/piggieback "0.4.1"]
                [figwheel-sidecar "0.5.18"]
+               ;; react components
                [cljsjs/semantic-ui-react "0.88.1-0"]
-               [cljsjs/antd "4.6.1-0"]]
+               [cljsjs/antd "4.6.1-0"]
+               ;; i18n
+               [tongue "0.2.9"]]
 
               :source-paths ["src" "dev/clj" "dev/cljs"]
               :resource-paths ["resources" "dev/resources" "target/cljsbuild"]
