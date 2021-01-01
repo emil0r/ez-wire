@@ -38,6 +38,9 @@
 
 (def dictionary {:en {:username "Username"
                       :password "Password"
+                      :ez-wire.form/done "Done"
+                      :ez-wire.form.wizard/next "Next"
+                      :ez-wire.form.wizard/prev "Previous"
                       :flight/book "Book"
                       :flight/dates "Dates"
                       :flight/invalid-name "Invalid name. Only alphanumeric characters allowed along with whitespace."
@@ -50,6 +53,9 @@
                       :sex/unicorn "Pink unicorn"}
                  :sv {:username "Användarnamn"
                       :password "Lösenord"
+                      :ez-wire.form/done "Klar"
+                      :ez-wire.form.wizard/next "Nästa"
+                      :ez-wire.form.wizard/prev "Föregående"
                       :flight/book "Boka"
                       :flight/dates "Datum"
                       :flight/invalid-name "Ogiltligt namn. Enbart alfanumeriska bokstäver är tillåtna tillsammans med blanksteg."

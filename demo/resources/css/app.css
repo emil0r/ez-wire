@@ -91,3 +91,7 @@ strong.ns {
 strong.args {
     color: blue;
 }
+
+.pagination {
+    margin-bottom: 2rem;
+}

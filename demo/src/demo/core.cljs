@@ -3,6 +3,7 @@
             [demo.common :refer [code]]
             [demo.forms.flight :refer [form-flight]]
             [demo.forms.login :refer [form-login]]
+            [demo.forms.wizard :refer [form-wizard]]
             [reagent.core :as r]
             [reagent.dom :as rdom]))
 
@@ -191,7 +192,8 @@
     [concepts]    
     [:ul.mt-6
      (for [[heading comp] [["Login form" form-login]
-                           ["Flight form" form-flight]]]
+                           ["Flight form" form-flight]
+                           ["Wizard flight form" form-wizard]]]
        (let [link (create-link heading)]
          [:li {:id link :key link}
           [:h3.subtitle heading]
