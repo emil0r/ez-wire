@@ -5,7 +5,9 @@
             [demo.common :refer [demo-component data]]
             [demo.syntax :as syntax]
             [ez-wire.form :as form]
-            [ez-wire.form.helpers :refer [valid?]]
+            [ez-wire.form.helpers :refer [add-external-error
+                                          remove-external-error
+                                          valid?]]
             [ez-wire.protocols]
             [reagent.core :as r]
             [re-frame.core :as rf]
@@ -13,6 +15,17 @@
   (:require-macros [ez-wire.form.macros :refer [defform]]
                    [ez-wire.form.validation :refer [defvalidation]]))
 
+;; utility functions to pass between js and cljs
+
+(defn kw->str [kw]
+  (subs (str kw) 1))
+
+(defn str->kw [s]
+  (keyword s))
+
+
+
+;; simple i18n
 (rf/reg-sub ::locale (fn [db [_ fallback]]
                        (or (::locale db)
                            fallback)))
@@ -29,14 +42,24 @@
                       :flight/dates "Dates"
                       :flight/invalid-name "Invalid name. Only alphanumeric characters allowed along with whitespace."
                       :flight/first-name "First name"
-                      :flight/last-name "Last name"}
+                      :flight/last-name "Last name"
+                      :flight/sex "Sex"
+                      :sex/unknown "Unknown"
+                      :sex/male "Male"
+                      :sex/female "Female"
+                      :sex/unicorn "Pink unicorn"}
                  :sv {:username "Användarnamn"
                       :password "Lösenord"
                       :flight/book "Boka"
                       :flight/dates "Datum"
                       :flight/invalid-name "Ogiltligt namn. Enbart alfanumeriska bokstäver är tillåtna tillsammans med blanksteg."
                       :flight/first-name "Förnman"
-                      :flight/last-name "Efternamn"}
+                      :flight/last-name "Efternamn"
+                      :flight/sex "Kön"
+                      :sex/unknown "Vet ej"
+                      :sex/male "Man"
+                      :sex/female "Kvinna"
+                      :sex/unicorn "Rosa enhörning"}
                  :tongue/fallback :en})
 (def translate (tongue/build-translate dictionary))
 
@@ -88,6 +111,18 @@
                 :on-change #(let [[start end] (map (fn [moment] (.toDate moment)) (js->clj %))]
                               (reset! model [start end]))}]))))))
 
+(defn select-adapter [{:keys [element] :as field}]
+  (let [f (r/adapt-react-class element)]
+    (fn [{:keys [name model value source source/id source/title] :as data}]
+      [f {:default-value (t value)
+          :on-change #(reset! model (str->kw %))
+          :filter-option false}
+       [:<>
+        (doall
+         (for [option source]
+           ^{:key [name (id option)]}
+           [:> ant/Select.Option {:value (kw->str (id option))}
+            (t (title option))]))]])))
 
 ;; -- validation --
 ;; We define a spec based validation (provided as default)
@@ -110,11 +145,19 @@
                    :message "Flight needs dates"
                    :showIcon true}]))
 
+;; we define our form
 (defform flightform
   {}
   [{:element ant/DatePicker.RangePicker
+    ;; Adapter will be used to give the final element for the form to use
     :adapter range-picker-adapater
+    ;; This is what will be used as the name of the field in the map
+    ;; the form produces
     :name :flight/dates
+    ;; This is what the field will be validated against
+    ;; it goes through the IValidation protocol.
+    ;; You can put in anything the validation field, as long as it implements
+    ;; the IValidation protocol.
     :validation ::dates}
    {:element ant/Input
     :adapter text-adapter
@@ -125,7 +168,25 @@
     :adapter text-adapter
     :name :flight/last-name
     :validation ::name
-    :placeholder :flight/last-name}])
+    :placeholder :flight/last-name}
+   {:element ant/Select
+    :adapter select-adapter
+    :name :flight/sex
+    :value :sex/unknown
+    ;; source/id and source/title are sent along into the adapter
+    ;; where we use them to coax out the id and the title
+    ;; from the source data
+    :source/id :id
+    :source/title :title
+    ;; source is used for the options
+    :source [{:id :sex/unknown
+              :title :sex/unknown}
+             {:id :sex/male
+              :title :sex/male}
+             {:id :sex/female
+              :title :sex/female}
+             {:id :sex/unicorn
+              :title :sex/unicorn}]}])
 
 
 
@@ -145,6 +206,21 @@
                      {:on-click #(rf/dispatch [::locale :sv])})
       "Svenska"]]))
 
+(defn external-error-buttons [form]
+  [:div.external-error-buttons
+   [:div.columns
+    [:div.column>p
+     "External errors can be added and removed via helper functions"]]
+   [:div.columns
+    [:div.column
+     [:> ant/Button {:type "primary"
+                     :on-click #(add-external-error form :flight/sex :name-of-my-error "This is an external error that has been added by the click of a button." true)}
+      "Add external error"]]
+    [:div.column
+     [:> ant/Button {:type "primary"
+                     :on-click #(remove-external-error form :flight/sex :name-of-my-error)}
+      "Remove external error"]]]])
+
 (defn component []
   (let [;; initialized flightform with the start date for :flight/dates
         ;; as today
@@ -161,11 +237,14 @@
          [form/as-table {} form]
          [:> ant/Button
           {:type "primary"
+           ;; valid? is a helper function that either takes a value, a form
+           ;; or a reagent RAtom/RCursor/Reaction
            :disabled (not (valid? data-form))
            :on-click #(js/alert (pr-str @data-form))}
           (t :flight/book)]]
         [:div.column
-         [:h4 "Data in the form"]
+         [external-error-buttons form]
+         [:h4.mt-5 "Data in the form"]
          [data @data-form]]]])))
 
 (defn form-flight []
