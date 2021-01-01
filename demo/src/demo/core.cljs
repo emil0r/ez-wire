@@ -20,8 +20,8 @@
       ^{:key k}
       [:tr [:th (pr-str k)] [:td explanation]])])
 
-(defn explain-form []
-  [:div.form
+(defn explain-form [link]
+  [:div.form {:id (create-link link)}
    [:h4.subtitle "Form"]
    [:p "A form is defined using " [:strong "defform"] ", which is a macro imported from " [:strong.ns "ez-wire.form.macros"]]
    [:p "In our namespace we import the " [:strong "defform"] " macro and " [:strong.ns "ez-wire.form"]]
@@ -102,8 +102,8 @@
                        [:ez-wire.form/on-valid [:div "Subscription that takes " [:strong.args "[:ez-wire.form/on-valid id-of-form]"] ". Returns either :ez-wire.form/invalid or the data for all the fields."]]
                        [:ez-wire.form.wizard/current-step [:div "Subscription that takes " [:strong.args "[:ez-wire.form.wizard/current-step id-of-form]"] ". Returns the current step as defined in the wizard setting in the options map for the form."]]])])
 
-(defn explain-fields []
-  [:div.fields
+(defn explain-fields [link]
+  [:div.fields {:id (create-link link)}
    [:h4 "Fields"]
    [:p "A field in a form is a map that holds relevant meta data."]
    [:h5 "Required keys in a field"]
@@ -133,8 +133,8 @@
    (explanation-table [[:model [:div "A reactive model that can be swapped, reset however you wish. " [:strong ":model"] " is an RCursor that is mapped onto the field in the RAtom that is initiated with every new instance of a form. Updating the model, will also update the data RAtom in the form."]]
                        [:error-element [:div "If no error-element is given, the default implementation will be used. Found in " [:strong.ns "ez.wire.form.elements/error-element"]]]])])
 
-(defn explain-validation []
-  [:div.validation
+(defn explain-validation [link]
+  [:div.validation {:id (create-link link)}
    [:h4 "Validation"]
    [:p "Validation is implemented in ez-wire as a protocol in " [:strong.ns "ez-wire.form.protocols"] " and a macro in " [:strong.ns "ez-wire.form.validation"] ". Default protocol implementations are provided for nil, keywords and vectors."]
    (code '(defprotocol IValidate
@@ -154,8 +154,8 @@
    [:p "keyword implements spec/valid? for " [:strong "valid?"] " and returns the " [:strong "t-fn-or-keyword"] " defined in the " [:strong "defvalidation"] " macro."]
    [:p "vector implements a referral to the protocol, where each element in the vector is checked against the protocol. This holds true for both " [:strong "valid?"] " and " [:strong "get-error-message"]]])
 
-(defn explain-i18n []
-  [:div.i18n
+(defn explain-i18n [link]
+  [:div.i18n {:id (create-link link)}
    [:h4 "i18n (internationalization)"]
    [:p "i18n is implemented in ez-wire as a protocol in " [:strong.ns "ez-wire.protocols"] ". It implements one method " [:strong "t"] ". It is up to the user of the library to make use of this, in order to adapt whichever i18n library that is used. By default nil, string and keyword are implemented. Examples for how to use i18n with a cljs i18n library are given below."]
    (code '(defprotocol Ii18n
@@ -176,10 +176,20 @@
                 "handle i18n"
                 "gather the data and send it elsewhere"]]
       [:li text])]
-   (explain-form)
-   (explain-fields)
-   (explain-validation)
-   (explain-i18n)])
+   [:h4 "TOC"]
+   [:ul
+    (for [text ["Explain form"
+                "Explain fields"
+                "Explain validation"
+                "Explain i18n"
+                "Login form"
+                "Flight form"
+                "Wizard flight form"]]
+      [:li [:a {:href (str "#" (create-link text))} text]])]
+   (explain-form "Explain form")
+   (explain-fields "Explain fields")
+   (explain-validation "Explain validation")
+   (explain-i18n "Explain i18n")])
 
 (defn index []
   [:div.container.mt-6
