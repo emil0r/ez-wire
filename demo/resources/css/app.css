@@ -92,6 +92,7 @@ h4, h5 {
 
 .requirements th {
     color: orange;
+    white-space: nowrap;
 }
 
 strong {
@@ -108,4 +109,8 @@ strong.args {
 
 .pagination {
     margin-bottom: 2rem;
+}
+
+.error {
+    color: red !important;
 }
