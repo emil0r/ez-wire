@@ -1,5 +1,7 @@
 = ez-wire
 
+image::demo/resources/img/logo.png[]
+
 Wire things together, in Clojurescript. Meant to be used together with reagent and re-frame.
 
 * form
