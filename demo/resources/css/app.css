@@ -1,3 +1,17 @@
+#app .splash {
+    display: flex;
+    justify-content: center;
+}
+.logo {
+    width: 100px;
+}
+
+.greeting {
+    text-align: center;
+    width: 100px;
+    margin-top: 100px;
+}
+
 .clearfix:before, .clearfix:after {
     content: " ";
     display: table;

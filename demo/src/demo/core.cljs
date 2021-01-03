@@ -195,6 +195,7 @@
   [:div.container.mt-6
    [:div.columns>div.column
     [:h1.title "ez-wire"]
+    [:img.logo {:src "img/logo.png"}]
     [:p "ez-wire is written for " [:a {:href "https://reagent-project.github.io/"} "reagent"] " and " [:a {:href "https://day8.github.io/re-frame/"} "re-frame."]]
     [:p "Both are excellent projects, and bring a lot of value as building blocks. ez-wire is yet another building block, that sits above these two more foundational blocks."]]
    [:div.columns>div.column
