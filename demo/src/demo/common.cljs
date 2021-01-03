@@ -1,5 +1,6 @@
 (ns demo.common
-  (:require [reagent.core :as r]))
+  (:require [cljs.pprint]
+            [reagent.core :as r]))
 
 (defn demo-component [{:keys [comp src complete no-heading]}]
   (r/with-let [showing (r/atom true)]

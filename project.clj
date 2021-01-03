@@ -77,21 +77,17 @@
                                 :source-map-timestamp true
                                 :source-map    true
                                 :optimizations :none
-                                :pretty-print  true}}}}}
-
-             :demo
-             {:cljsbuild
-              {:builds
-               {:demo-prod
+                                :pretty-print  true}}
+                :demo-prod
                 {:source-paths ["src" "demo/src"]
                  :compiler     {:main          demo.core
-                                :asset-path    "js/out"
-                                :output-to     "demo/resources/js/app.js"
-                                :output-dir    "demo/resources/js/out"
+                                :asset-path    "/js/out"
+                                :output-to     "demo/resources/js/prod/app.js"
+                                :output-dir    "demo/resources/js/prod/out"
                                 :source-map-timestamp true
-                                :source-map    true
+                                :source-map    "demo/resources/js/prod/app.js.map"
                                 :optimizations :advanced}}}}}
-             
+
              :test
              {:cljsbuild
               {:builds

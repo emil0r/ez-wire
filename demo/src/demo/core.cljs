@@ -166,7 +166,7 @@
 (defn concepts []
   [:div.concepts
    [:h2.title "ez-wire.form"]
-   [:p.mb-2 "When writing for the web, forms are the bread and butter for gathering information. ez-wire.form handles everything we need for forms in once place."]
+   [:p.mb-2 "When writing for the web, forms are the bread and butter for gathering information. ez-wire.form handles everything we need for forms in one place."]
    [:p.mb-2 "In a form we define the data we wish to"]
    [:ul.ml-6.has-text-danger
     (for [text ["gather as fields"
@@ -191,13 +191,19 @@
    (explain-validation "Explain validation")
    (explain-i18n "Explain i18n")])
 
-(defn index []
-  [:div.container.mt-6
+(defn info []
+  [:div.info
    [:div.columns>div.column
     [:h1.title "ez-wire"]
     [:img.logo {:src "img/logo.png"}]
+    [:p.mt-5
+     "Repo found at " [:a {:href "https://github.com/emil0r/ez-wire"} "GitHub"]]
     [:p "ez-wire is written for " [:a {:href "https://reagent-project.github.io/"} "reagent"] " and " [:a {:href "https://day8.github.io/re-frame/"} "re-frame."]]
-    [:p "Both are excellent projects, and bring a lot of value as building blocks. ez-wire is yet another building block, that sits above these two more foundational blocks."]]
+    [:p "Both are excellent projects, and bring a lot of value as building blocks. ez-wire is yet another building block, that sits above these two more foundational blocks."]]])
+
+(defn index []
+  [:div.container.mt-6
+   [info]
    [:div.columns>div.column
     
     [concepts]    
