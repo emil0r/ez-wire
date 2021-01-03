@@ -21,7 +21,7 @@
 
 (defn as-list
   [params form-map & [content]]
-  (let [{:keys [id type]
+  (let [{:keys [id list/type]
          :or   {id   (util/gen-id)
                 type :ul}} params
         body (common/get-body li params form-map)

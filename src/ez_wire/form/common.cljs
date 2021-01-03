@@ -13,13 +13,12 @@
 (spec/def ::content fn?)
 
 
-(defn render-error-element [{:keys [error-element name error-class]
-                             :or {error-class "error"}
+(defn render-error-element [{:keys [error-element name css]
                              :as field} form-map]
   (when-not (#{:dispatch} error-element)
     (if error-element
       [error-element {:model (get-in form-map [:errors name])
-                      :class [error-class]}])))
+                      :class (get css :error "error")}])))
 
 
 (defn render-field [{:keys [field-fn name] :as field} form-map]
@@ -37,7 +36,9 @@
     [:div {:class (get css :help "help")} (t help)]))
 
 (defn render-label [{:keys [css id label name] :as field} form-map]
-  [:label {:for id :class (get css :label "label")} (t (or label name))])
+  (if (false? label)
+    nil
+    [:label {:for id :class (get css :label "label")} (t (or label name))]))
 
 
 (defn assoc-wiring [{:keys [name] :as field} params]

@@ -8,5 +8,6 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
-.hgignore
-.hg/
+demo/resources/js/out
+demo/resources/js/prod
+tmp
