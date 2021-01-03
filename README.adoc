@@ -15,8 +15,6 @@ Wire things together, in Clojurescript. Meant to be used together with reagent a
 
 Documentation can be found https://emil0r.github.io/ez-wire-docs/[here].
 
-----
-
 
 == License
 
