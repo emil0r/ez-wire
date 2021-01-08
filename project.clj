@@ -1,4 +1,4 @@
-(defproject ez-wire "0.2.1"
+(defproject ez-wire "0.3.0-SNAPSHOT"
 
   :description "Wiring galore"
 
@@ -34,7 +34,6 @@
                [ring/ring-defaults "0.3.2"]
                [compojure "1.6.1"]
                [hiccup "1.0.5"]
-               [nrepl "0.6.0"]
                [binaryage/devtools "0.9.10"]
                [cider/piggieback "0.4.1"]
                [figwheel-sidecar "0.5.18"]

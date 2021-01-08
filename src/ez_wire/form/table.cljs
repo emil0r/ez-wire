@@ -24,7 +24,7 @@
         (common/render-help field form-map)]])))
 
 (defn as-table
-  [params form-map & [content]]
+  [params {:keys [form-key] :as form-map} & [content]]
   (let [{:keys [id]
          :or   {id (util/gen-id)}} params
         ;; generate the body of the table
@@ -35,7 +35,7 @@
              :or {style {}
                   class ""}} params
             body (if re-render? (common/get-body table-row params form-map) body)]
-        [:table {:key (util/slug "form-table" id)
+        [:table {:key (util/slug "form-table" (str @form-key))
                  :style style
                  :class class}
          [:tbody body

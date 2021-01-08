@@ -1,11 +1,13 @@
 (ns ez-wire.test-page
   (:require [clojure.spec.alpha :as spec]
             [clojure.string :as str]
+            [cljs.pprint]
             [ez-wire.element :as e]
             [ez-wire.form :as form]
             [ez-wire.form.helpers :as helpers]
             [ez-wire.util :as util]
             [reagent.core :as r]
+            [reagent.dom :as rdom]
             [re-frame.core :as rf])
   (:require-macros [ez-wire.form.macros :refer [defform]]
                    [ez-wire.form.validation :refer [defvalidation]]))
@@ -66,8 +68,8 @@
    {:element e/input
     :adapter text-adapter
     :placeholder "Third"
-    :value ""    
     :wiring [:tr [:td "bar"] [:td :$field]]
+    :validation [::long-string]
     :name :test3}
    {:element e/input
     :adapter text-adapter
@@ -78,7 +80,7 @@
 
 (defn home-page []
   (let [data {:test1 "Elsa"
-              :test2 "Faulty input"}
+              :test2 "asdf"}
         form (testform {} data)
         wizard-form (testform {:render :wizard
                                :wizard {:steps [{:fields [:test1]
@@ -107,11 +109,16 @@
           {:class "remove-error"
            :on-click #(helpers/remove-external-error form :test1 :bar)}
           "Remove external non-passing error to :test1"]
-
+         
          [:> e/button
           {:class "add-error"
            :on-click #(helpers/add-external-error form :test4 :foo "This is an external error" true)}
-          "Add external passing error to :test4"]]
+          "Add external passing error to :test4"]
+
+         [:> e/button
+          {:class "reset-form"
+           :on-click #(form/reset-form! form)}
+          "Reset form"]]
         [:div
          [:> e/button
           {:class "alert-button"
@@ -164,7 +171,7 @@
        [:div.clear]])))
 
 (defn mount-root []
-  (r/render [home-page] (.getElementById js/document "app")))
+  (rdom/render [home-page] (.getElementById js/document "app")))
 
 (defn init! []
   (mount-root))

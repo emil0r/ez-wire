@@ -1,9 +1,11 @@
 (ns ez-wire.form
   (:require [ez-wire.util :as util]
             [ez-wire.form.elements]
-            [ez-wire.form.protocols :as form.protocols :refer [valid? get-error-message]]
+            [ez-wire.form.helpers]
             [ez-wire.form.list :as form.list]
             [ez-wire.form.paragraph :as form.paragraph]
+            [ez-wire.form.protocols :as form.protocols :refer [get-error-message
+                                                               valid?]]
             [ez-wire.form.table :as form.table]
             [ez-wire.form.template :as form.template]
             [ez-wire.form.validation :as form.validation]
@@ -63,7 +65,10 @@
     (let [field (get-in form [:fields k])]
       ;; update? is used to determine if we should do updates to errors
       ;; we still need all the errors for on-valid to properly fire
-      (let [update? (not= v (get old-state k))]
+      ;; we skip pairs of nils assuming that this is a state of initialization
+      (let [update? (and (not (and (nil? (get old-state k))
+                                   (nil? v)))
+                         (not= v (get old-state k)))]
         (if (valid? (:validation field) v form)
           ;; if the validation is valid we change it to hold zero errors
           (conj out [k update? []])
@@ -133,21 +138,24 @@
                          (assoc out name (atom [])))
                        {} map-fields)
         
-        form (map->Form {:fields  map-fields
+        form (map->Form {:fields       map-fields
                          ;; field-ks control which fields are to be rendered for
                          ;; everything form supports with the exception of wiring
-                         :field-ks (mapv :name fields)
-                         :options options
-                         :id      (:id options)
-                         :extra   (atom {})
-                         :errors  errors
-                         :data    (atom {})})]
+                         :field-ks     (mapv :name fields)
+                         :options      options
+                         :default-data -data
+                         :id           (:id options)
+                         :extra        (atom {})
+                         :form-key     (atom (random-uuid))
+                         :errors       errors
+                         :data         (atom {})})]
     (add-validation-watcher form)
     ;; run validation once before we send back our form
     (reset! (:data form) -data)
     form))
 
 
+(def reset-form! ez-wire.form.helpers/reset-form!)
 (def as-list (form.wizard/wizard form.list/as-list))
 (def as-paragraph (form.wizard/wizard form.paragraph/as-paragraph))
 (def as-table (form.wizard/wizard form.table/as-table))
