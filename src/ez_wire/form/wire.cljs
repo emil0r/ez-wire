@@ -22,16 +22,14 @@
                                            (->kw name :help)    (common/render-help field form-map)}))
                                  default-map fields))))
 
-(defn as-wire [params form-map & [content]]
-  (let [{:keys [id]
-         :or   {id (util/gen-id)}} params
-        body   (assemble-body params form-map content)]
+(defn as-wire [params {:keys [form-key] :as form-map} & [content]]
+  (let [body   (assemble-body params form-map content)]
     (fn [params form-map & [content]]
       (let [{:keys [style
                     class]
              :or {style {}
                   class ""}} params]
-        [:div {:key (util/slug "form-wire" id)
+        [:div {:key (util/slug "form-wire" @form-key)
                :style style
                :class class}
          body]))))

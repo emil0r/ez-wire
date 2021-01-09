@@ -20,10 +20,8 @@
        (common/render-help field form-map)])))
 
 (defn as-paragraph
-  [params form-map & [content]]
-  (let [{:keys [id]
-         :or   {id   (util/gen-id)}} params
-        body (common/get-body paragraph params form-map)
+  [params {:keys [form-key] :as form-map} & [content]]
+  (let [body (common/get-body paragraph params form-map)
         re-render? (helpers/re-render? form-map)]
     (fn [params form-map & [content]]
       (let [{:keys [style
@@ -31,7 +29,7 @@
              :or {style {}
                   class ""}} params
             body (if re-render? (common/get-body paragraph params form-map) body)]
-        [:div {:key (util/slug "form-paragraph" id)
+        [:div {:key (util/slug "form-paragraph" @form-key)
                :style style
                :class class}
          body

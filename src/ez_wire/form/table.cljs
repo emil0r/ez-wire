@@ -25,9 +25,7 @@
 
 (defn as-table
   [params {:keys [form-key] :as form-map} & [content]]
-  (let [{:keys [id]
-         :or   {id (util/gen-id)}} params
-        ;; generate the body of the table
+  (let [;; generate the body of the table
         body (common/get-body table-row params form-map)
         re-render? (helpers/re-render? form-map)]
     (fn [params form-map & [content]]
