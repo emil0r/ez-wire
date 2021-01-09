@@ -8,7 +8,8 @@
             [ez-wire.util :as util]
             [reagent.core :as r]
             [reagent.dom :as rdom]
-            [re-frame.core :as rf])
+            [re-frame.core :as rf]
+            [re-frame.db])
   (:require-macros [ez-wire.form.macros :refer [defform]]
                    [ez-wire.form.validation :refer [defvalidation]]))
 
@@ -78,7 +79,7 @@
     :name :test4}])
 
 
-(defn home-page []
+(defn form-page []
   (let [data {:test1 "Elsa"
               :test2 "asdf"}
         form (testform {} data)
@@ -169,6 +170,16 @@
          [:div "Step " @wizard-current-step]
          [form/as-table {} wizard-form]]]
        [:div.clear]])))
+
+(defn home-page []
+  (let [show-form-page? (r/atom true)]
+    (fn []
+      [:div
+       [:> e/button {:on-click #(reset! show-form-page? (not @show-form-page?))}
+        "Toggle form page"]
+       (if @show-form-page?
+         [form-page]
+         [:pre (with-out-str (cljs.pprint/pprint @re-frame.db/app-db))])])))
 
 (defn mount-root []
   (rdom/render [home-page] (.getElementById js/document "app")))

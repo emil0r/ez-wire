@@ -16,7 +16,6 @@
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-figwheel "0.5.18"]
-            [cider/cider-nrepl "0.21.1"]
             [lein-doo "0.1.10"]]
   
 
@@ -86,7 +85,7 @@
                                 :source-map-timestamp true
                                 :source-map    "demo/resources/js/prod/app.js.map"
                                 :optimizations :advanced}}}}}
-
+             
              :test
              {:cljsbuild
               {:builds

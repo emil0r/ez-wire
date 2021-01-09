@@ -22,6 +22,17 @@
 (rf/reg-sub      ::form.wizard/current-step (fn [db [_ id]]
                                               (get-in db [::wizard id :current-step])))
 
+(rf/reg-event-db ::cleanup     (fn [db [_ id]]
+                                 (let [{::keys [error on-valid wizard]} db]
+                                   (-> db
+                                       (assoc ::error (dissoc error id))
+                                       (assoc ::on-valid (dissoc on-valid id))
+                                       (assoc ::wizard (dissoc wizard id))))))
+(rf/reg-event-db ::cleanup-all (fn [db _]
+                                 (dissoc db
+                                         ::error
+                                         ::on-valid
+                                         ::wizard)))
 (rf/reg-event-db ::error       (fn [db [_ id field-name errors]]
                                  (assoc-in db [::error id field-name] errors)))
 (rf/reg-event-db ::on-valid    (fn [db [_ id new-state]]

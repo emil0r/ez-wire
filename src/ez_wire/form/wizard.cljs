@@ -66,7 +66,8 @@
                                              (map count $)
                                              (apply max $)
                                              (str (* 10 $) "rem"))}
-        max-steps (count (get-in form-map [:options :wizard :steps]))]
+        max-steps (count (get-in form-map [:options :wizard :steps]))
+        button-element (get-in form-map [:options :wizard :button-element] elements/button-element)]
     (fn [form-fn args]
       (let [{:keys [params form-map]} args
             step-opts (get-in form-map [:options :wizard :steps @step])
@@ -75,9 +76,8 @@
                                      (get-in params [:wizard :css])
                                      (get-in step-opts [:css]))}]
         (rf/dispatch [:ez-wire.form.wizard/current-step (:id form-map) @step])
-        (render-step {:step step :step-opts step-opts :style-map style-map :max-steps max-steps :button elements/button-element}
-                     form-fn form-map args)
-        ))))
+        (render-step {:step step :step-opts step-opts :style-map style-map :max-steps max-steps :button button-element}
+                     form-fn form-map args)))))
 
 (defn wizard
   "Takes a form-fn (as-table, as-list, etc) and puts into a surrounding wizard if the form is to be rendered as a wizard"
