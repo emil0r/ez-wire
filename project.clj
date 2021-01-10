@@ -87,7 +87,10 @@
                                 :optimizations :advanced}}}}}
              
              :test
-             {:cljsbuild
+             {:dependencies
+              [;; test
+               [day8.re-frame/test "0.1.5"]]
+              :cljsbuild
               {:builds
                {:test
                 {:source-paths ["src" "test"]
