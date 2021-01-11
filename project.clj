@@ -1,4 +1,4 @@
-(defproject ez-wire "0.3.0-SNAPSHOT"
+(defproject ez-wire "0.3.0"
 
   :description "Wiring galore"
 
