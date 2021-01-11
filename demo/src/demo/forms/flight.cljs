@@ -212,6 +212,12 @@
                      {:on-click #(rf/dispatch [::locale :sv])})
       "Svenska"]]))
 
+(defn reset-form [form]
+  [:div.reset-form
+   [:> ant/Button {:type "danger"
+                   :on-click #(form/reset-form! form)}
+    "Reset the form"]])
+
 (defn external-error-buttons [form]
   [:div.external-error-buttons
    [:div.columns
@@ -237,7 +243,9 @@
       [:div
        [:div.columns
         [:div.column
-         [langauge-buttons]]]
+         [langauge-buttons]]
+        [:div.column
+         [reset-form form]]]
        [:div.columns
         [:div.column
          [form/as-table {} form]
