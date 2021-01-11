@@ -3,6 +3,8 @@
             [demo.common :refer [code]]
             [demo.forms.flight :refer [form-flight]]
             [demo.forms.login :refer [form-login]]
+            [demo.forms.templated :refer [form-templated]]
+            [demo.forms.wired :refer [form-wired]]
             [demo.forms.wizard :refer [form-wizard]]
             [reagent.core :as r]
             [reagent.dom :as rdom]))
@@ -49,8 +51,16 @@
                        [:wiring "See options for rendering"]
                        [:render [:div "Set to " [:strong ":wizard"] " to render the form as a wizard"]]
                        [:wizard [:div "Map to hold all the steps in the wizard, which fields belongs to each step and allows for an optional legend"
-                                 (code '{:steps [{:fields [:username]
-                                                  :legend [:h3 "Username"]}
+                                 (code '{ ;; static props to apply to the button
+                                         :button/props {:type "primary"}
+                                         :button/element my-reagent-button
+                                         ;; optional css map
+                                         :css {}
+                                         :steps [{:fields [:username]
+                                                  :legend [:h3 "Username"]
+                                                  ;; can put in special css in this step
+                                                  ;; as well
+                                                  :css {}}
                                                  {:fields [:password]
                                                   :legend [:h3 "Password"]}]})]]
                        [:class "CSS classes to be applied to a rendering"]
@@ -184,7 +194,9 @@
                 "Explain i18n"
                 "Login form"
                 "Flight form"
-                "Wizard flight form"]]
+                "Wizard flight form"
+                "Wired flight form"
+                "Templated flight form"]]
       [:li [:a {:href (str "#" (create-link text))} text]])]
    (explain-form "Explain form")
    (explain-fields "Explain fields")
@@ -210,7 +222,9 @@
     [:ul.mt-6
      (for [[heading comp] [["Login form" form-login]
                            ["Flight form" form-flight]
-                           ["Wizard flight form" form-wizard]]]
+                           ["Wizard flight form" form-wizard]
+                           ["Wired flight form" form-wired]
+                           ["Templated flight form" form-templated]]]
        (let [link (create-link heading)]
          [:li {:id link :key link}
           [:h3.subtitle heading]

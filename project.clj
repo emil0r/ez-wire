@@ -1,4 +1,4 @@
-(defproject ez-wire "0.2.1"
+(defproject ez-wire "0.3.0"
 
   :description "Wiring galore"
 
@@ -16,7 +16,6 @@
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-figwheel "0.5.18"]
-            [cider/cider-nrepl "0.21.1"]
             [lein-doo "0.1.10"]]
   
 
@@ -34,7 +33,6 @@
                [ring/ring-defaults "0.3.2"]
                [compojure "1.6.1"]
                [hiccup "1.0.5"]
-               [nrepl "0.6.0"]
                [binaryage/devtools "0.9.10"]
                [cider/piggieback "0.4.1"]
                [figwheel-sidecar "0.5.18"]
@@ -87,9 +85,12 @@
                                 :source-map-timestamp true
                                 :source-map    "demo/resources/js/prod/app.js.map"
                                 :optimizations :advanced}}}}}
-
+             
              :test
-             {:cljsbuild
+             {:dependencies
+              [;; test
+               [day8.re-frame/test "0.1.5"]]
+              :cljsbuild
               {:builds
                {:test
                 {:source-paths ["src" "test"]

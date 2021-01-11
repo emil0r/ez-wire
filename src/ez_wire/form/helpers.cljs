@@ -52,3 +52,18 @@
     (swap! (get-in form [:extra]) assoc-in [field-name :field-errors] errors)
     ;; remove the error message from that particular error
     (reset! (get-in form [:errors field-name]) error-messages)))
+
+
+(defn reset-form!
+  "Reset the form to initial state"
+  [form]
+  ;; reset all errors to empty arrays
+  (doseq [[k v] (:errors form)]
+    (reset! v []))
+  ;; ;; reset extra with an empty map
+  (reset! (:extra form) {})
+  
+  ;; reset the data with the original default-data
+  (reset! (:data form) nil)
+  (reset! (:data form) (:default-data form))
+  (reset! (:form-key form) (random-uuid)))

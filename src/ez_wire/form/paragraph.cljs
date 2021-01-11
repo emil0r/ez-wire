@@ -1,7 +1,9 @@
 (ns ez-wire.form.paragraph
   (:require [ez-wire.form.common :as common]
             [ez-wire.form.helpers :as helpers]
-            [ez-wire.util :as util]))
+            [ez-wire.util :as util]
+            [reagent.core :as r]
+            [re-frame.core :as rf]))
 
 (defn- paragraph [{:keys [wiring] :as field} {{label? :label?} :options :as form-map}]
   (if wiring
@@ -20,20 +22,26 @@
        (common/render-help field form-map)])))
 
 (defn as-paragraph
-  [params form-map & [content]]
-  (let [{:keys [id]
-         :or   {id   (util/gen-id)}} params
-        body (common/get-body paragraph params form-map)
+  [params {:keys [id form-key] :as form-map} & [content]]
+  (let [body (common/get-body paragraph params form-map)
         re-render? (helpers/re-render? form-map)]
-    (fn [params form-map & [content]]
-      (let [{:keys [style
-                    class]
-             :or {style {}
-                  class ""}} params
-            body (if re-render? (common/get-body paragraph params form-map) body)]
-        [:div {:key (util/slug "form-paragraph" id)
-               :style style
-               :class class}
-         body
-         (if content
-           [content])]))))
+    (r/create-class
+     {:display-name "as-paragraph"
+
+      :component-will-unmount
+      (fn [this]
+        (rf/dispatch [:ez-wire.form/cleanup id]))
+      
+      :reagent-render
+      (fn [params form-map & [content]]
+        (let [{:keys [style
+                      class]
+               :or {style {}
+                    class ""}} params
+              body (if re-render? (common/get-body paragraph params form-map) body)]
+          [:div {:key (util/slug "form-paragraph" @form-key)
+                 :style style
+                 :class class}
+           body
+           (if content
+             [content])]))})))

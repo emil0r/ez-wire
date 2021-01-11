@@ -1,7 +1,9 @@
 (ns ez-wire.form.template
   (:require [ez-wire.form.common :as common]
             [ez-wire.form.helpers :as helpers]
-            [ez-wire.util :as util]))
+            [ez-wire.util :as util]
+            [reagent.core :as r]
+            [re-frame.core :as rf]))
 
 (defn row [{:keys [wiring]} _]
   wiring)
@@ -12,22 +14,29 @@
                    (assoc out name template))
                  {} (:fields form-map))))
 
-(defn as-template [params form-map content]
-  (let [{:keys [id template]
-         :or   {id (util/gen-id)}} params
+(defn as-template [params {:keys [id form-key] :as form-map} content]
+  (let [{:keys [template]} params
         body (common/get-body row (adapt-wiring params form-map) form-map)
         re-render? (helpers/re-render? form-map)]
-    (fn [params form-map content]
-      (let [{:keys [style
-                    class]
-             :or {style {}
-                  class ""}} params
-            body (if re-render? (common/get-body row (adapt-wiring params form-map) form-map) body)]
-        [:div {:key (util/slug "form-template" id)
-               :style style
-               :class class}
-         body
-         (if content
-           [content])]))))
+    (r/create-class
+     {:display-name "as-template"
+
+      :component-will-unmount
+      (fn [this]
+        (rf/dispatch [:ez-wire.form/cleanup id]))
+
+      :reagent-render
+      (fn [params form-map content]
+        (let [{:keys [style
+                      class]
+               :or {style {}
+                    class ""}} params
+              body (if re-render? (common/get-body row (adapt-wiring params form-map) form-map) body)]
+          [:div {:key (util/slug "form-template" @form-key)
+                 :style style
+                 :class class}
+           body
+           (if content
+             [content])]))})))
 
 

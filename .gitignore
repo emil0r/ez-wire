@@ -12,3 +12,4 @@ demo/resources/js/app.js
 demo/resources/js/out
 demo/resources/js/prod
 tmp
+out/

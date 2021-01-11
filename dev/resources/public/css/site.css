@@ -25,7 +25,7 @@
 .add-error, .remove-error {
     margin: 10px 5px;
 }
-.alert-button, .valid-button {
+.alert-button, .valid-button, .which-state-button {
     position: fixed;
     padding: 1rem 2rem;
     background-color: #0000aa;
@@ -34,6 +34,9 @@
 }
 .valid-button {
     left: 12rem;
+}
+.which-state-button {
+    left: 25rem;
 }
 .internal-info {
     max-width: 50%;
