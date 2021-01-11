@@ -51,8 +51,16 @@
                        [:wiring "See options for rendering"]
                        [:render [:div "Set to " [:strong ":wizard"] " to render the form as a wizard"]]
                        [:wizard [:div "Map to hold all the steps in the wizard, which fields belongs to each step and allows for an optional legend"
-                                 (code '{:steps [{:fields [:username]
-                                                  :legend [:h3 "Username"]}
+                                 (code '{ ;; static props to apply to the button
+                                         :button/props {:type "primary"}
+                                         :button/element my-reagent-button
+                                         ;; optional css map
+                                         :css {}
+                                         :steps [{:fields [:username]
+                                                  :legend [:h3 "Username"]
+                                                  ;; can put in special css in this step
+                                                  ;; as well
+                                                  :css {}}
                                                  {:fields [:password]
                                                   :legend [:h3 "Password"]}]})]]
                        [:class "CSS classes to be applied to a rendering"]

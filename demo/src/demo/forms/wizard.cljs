@@ -5,13 +5,16 @@
             [demo.forms.flight :refer [flightform]]
             [ez-wire.form :as form]
             [ez-wire.form.helpers :refer [valid?]]
-            [re-frame.core :as rf]))
+            [re-frame.core :as rf]
+            [reagent.core :as r]))
 
 (defn component []
   (let [;; initiate our form as a wizard
         form (flightform {:label? false
                           :render :wizard
-                          :wizard {:steps [{:fields [:flight/dates]
+                          :wizard {:button/props {:type "primary"}
+                                   :button/element (r/adapt-react-class ant/Button)
+                                   :steps [{:fields [:flight/dates]
                                             :legend [:h3 "Select your dates"]}
                                            {:fields [:flight/first-name
                                                      :flight/last-name]
