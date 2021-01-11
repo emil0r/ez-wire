@@ -3,6 +3,8 @@
             [demo.common :refer [code]]
             [demo.forms.flight :refer [form-flight]]
             [demo.forms.login :refer [form-login]]
+            [demo.forms.templated :refer [form-templated]]
+            [demo.forms.wired :refer [form-wired]]
             [demo.forms.wizard :refer [form-wizard]]
             [reagent.core :as r]
             [reagent.dom :as rdom]))
@@ -184,7 +186,9 @@
                 "Explain i18n"
                 "Login form"
                 "Flight form"
-                "Wizard flight form"]]
+                "Wizard flight form"
+                "Wired flight form"
+                "Templated flight form"]]
       [:li [:a {:href (str "#" (create-link text))} text]])]
    (explain-form "Explain form")
    (explain-fields "Explain fields")
@@ -210,7 +214,9 @@
     [:ul.mt-6
      (for [[heading comp] [["Login form" form-login]
                            ["Flight form" form-flight]
-                           ["Wizard flight form" form-wizard]]]
+                           ["Wizard flight form" form-wizard]
+                           ["Wired flight form" form-wired]
+                           ["Templated flight form" form-templated]]]
        (let [link (create-link heading)]
          [:li {:id link :key link}
           [:h3.subtitle heading]
