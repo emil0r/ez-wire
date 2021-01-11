@@ -1,4 +1,4 @@
-(defproject ez-wire "0.3.0"
+(defproject ez-wire "0.4.0-SNAPSHOT"
 
   :description "Wiring galore"
 
@@ -37,7 +37,6 @@
                [cider/piggieback "0.4.1"]
                [figwheel-sidecar "0.5.18"]
                ;; react components
-               [cljsjs/semantic-ui-react "0.88.1-0"]
                [cljsjs/antd "4.6.1-0"]
                ;; i18n
                [tongue "0.2.9"]]

@@ -25,26 +25,13 @@
 .add-error, .remove-error {
     margin: 10px 5px;
 }
-.alert-button, .valid-button, .which-state-button {
-    position: fixed;
-    padding: 1rem 2rem;
-    background-color: #0000aa;
-    color: white;
-    font-size: 120%;
-}
-.valid-button {
-    left: 12rem;
-}
-.which-state-button {
-    left: 25rem;
-}
 .internal-info {
     max-width: 50%;
     position: fixed;
-    top: 14rem;
+    top: 18rem;
     left: 0.5rem;
     padding: 1rem 2rem;
-    background-color: #0000aa;
+    background-color: #3333ff;
     color: white;
     font-size: 120%;
 }

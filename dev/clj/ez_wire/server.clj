@@ -17,7 +17,8 @@
    [:meta {:charset "utf-8"}]
    [:meta {:name    "viewport"
            :content "width=device-width, initial-scale=1"}]
-   (include-css "/css/site.css")])
+   (include-css "/css/site.css")
+   (include-css "https://cdnjs.cloudflare.com/ajax/libs/antd/4.9.4/antd.min.css")])
 
 (defn loading-page []
   (html5
