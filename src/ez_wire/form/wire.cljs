@@ -24,7 +24,10 @@
                                            (->kw name :help)    (common/render-help field form-map)}))
                                  default-map fields))))
 
-(defn as-wire [params {:keys [id form-key] :as form-map} & [content]]
+(defn as-wire [{:keys [wiring/element]
+                :or {element :div}
+                :as params}
+               {:keys [id form-key] :as form-map} & [content]]
   (let [body   (assemble-body params form-map content)]
     (r/create-class
      {:display-name "as-wire"
@@ -39,7 +42,7 @@
                       class]
                :or {style {}
                     class ""}} params]
-          [:div {:key (util/slug "form-wire" @form-key)
-                 :style style
-                 :class class}
+          [element {:key (util/slug "form-wire" @form-key)
+                    :style style
+                    :class class}
            body]))})))

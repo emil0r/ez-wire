@@ -14,7 +14,10 @@
                    (assoc out name template))
                  {} (:fields form-map))))
 
-(defn as-template [params {:keys [id form-key] :as form-map} content]
+(defn as-template [{:keys [template/element]
+                    :or {element :div}
+                    :as params}
+                   {:keys [id form-key] :as form-map} content]
   (let [{:keys [template]} params
         body (common/get-body row (adapt-wiring params form-map) form-map)
         re-render? (helpers/re-render? form-map)]
@@ -32,9 +35,9 @@
                :or {style {}
                     class ""}} params
               body (if re-render? (common/get-body row (adapt-wiring params form-map) form-map) body)]
-          [:div {:key (util/slug "form-template" @form-key)
-                 :style style
-                 :class class}
+          [element {:key (util/slug "form-template" @form-key)
+                    :style style
+                    :class class}
            body
            (if content
              [content])]))})))

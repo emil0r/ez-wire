@@ -145,7 +145,8 @@
          [form/as-paragraph {} form]]
         [:div
          [:h2 "My testform [template]"]
-         [form/as-template {:template [:div.template :$key
+         [form/as-template {:template/element :span
+                            :template [:div.template :$key
                                        :$label
                                        :$field
                                        :$errors
@@ -154,12 +155,14 @@
           form]]
         [:div
          [:h2 "My testform [wire]"]
-         [form/as-wire {:wiring
+         [form/as-wire {:wiring/element :span
+                        :class "foobar"
+                        :wiring
                         [:div.wire
                          [:div.number1
-                          :$test.label
-                          :$test.field
-                          :$test.errors]
+                          :$test1.label
+                          :$test1.field
+                          :$test1.errors]
                          [:div.number2
                           :$test2.label
                           :$test2.field
