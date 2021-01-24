@@ -3,8 +3,7 @@
 
 
 (defn register-module [db [_ {:keys [module/key] :as module}]]
-  (let [modules (get db :ez-wire.admin/modules {})]
-    (assoc db :ez-wire.admin/modules (assoc modules key module))))
+  (assoc-in db [:ez-wire.admin/modules key] module))
 (rf/reg-event-db :ez-wire.admin/register-module register-module)
 
 
@@ -32,3 +31,11 @@
 (defn admin-view [db [_ view]]
   (assoc db :ez-wire.admin/view view))
 (rf/reg-event-db :ez-wire.admin/view admin-view )
+
+
+
+(defn navigation [db [_ {:keys [module entity entity-id]}]]
+  (assoc db :ez-wire.admin/navigation {:module module
+                                       :entity entity
+                                       :entity-id entity-id}))
+(rf/reg-event-db :ez-wire.admin/navigation navigation)

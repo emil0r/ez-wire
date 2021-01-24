@@ -12,7 +12,7 @@
                  [re-frame "0.10.5" :scope "provided"]
                  [reagent "1.0.0" :scope "provided"]]
 
-  :repl-options {:init-ns ez-wire.core}
+  :repl-options {:init-ns user}
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-figwheel "0.5.18"]
