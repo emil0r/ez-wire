@@ -9,5 +9,4 @@
     (let [module (get @modules module-key)
           {:entity/keys [interface] :as entity}
           (get-in module [:module/entities entity-key])]
-      (pr-str interface)
-      )))
+      (pr-str interface))))
