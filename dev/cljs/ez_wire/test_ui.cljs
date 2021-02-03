@@ -5,10 +5,15 @@
 
 
 (defn ui-page []
-  [table {:columns [{:title "Title"
-                     :name :title}
+  [table {:show-columns? true
+          :pagination/pp 50
+          :columns [{:title "Title"
+                     :name :title
+                     :sort? true
+                     :sort/default? true}
                     {:title "First name"
-                     :name :first-name}
+                     :name :first-name
+                     :sort? true}
                     {:title "Last name"
                      :name :last-name}]
           :model [{:title "Mr"
