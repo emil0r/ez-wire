@@ -130,7 +130,10 @@
 (defn form [fields form-options override-options data]
   ;; do the conform here as conform can change the structure of the data
   ;; that comes out in order to show how it came to that conclusion (spec/or for example)
-  (let [options (merge {:id (util/gen-id)} form-options override-options)
+  (let [options (merge {:id (util/gen-id)
+                        :form/automatic-cleanup? true}
+                       form-options
+                       override-options)
         map-fields (->> fields
                         (map (fn [{:keys [name id error-element] :as field}]
                                [name (assoc field
@@ -167,6 +170,7 @@
 
 
 (def reset-form! ez-wire.form.helpers/reset-form!)
+(def cleanup-form! ez-wire.form.helpers/cleanup-form!)
 (def as-list (form.wizard/wizard form.list/as-list))
 (def as-paragraph (form.wizard/wizard form.paragraph/as-paragraph))
 (def as-table (form.wizard/wizard form.table/as-table))

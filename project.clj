@@ -1,6 +1,6 @@
-(defproject ez-wire "0.3.1"
+(defproject ez-wire "0.3.2"
 
-  :description "Wiring galore"
+  :description "Helper library for reagent+re-frame"
 
   :url "https://github.com/emil0r/ez-wire"
 

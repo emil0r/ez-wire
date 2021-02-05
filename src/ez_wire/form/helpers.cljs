@@ -67,3 +67,8 @@
   (reset! (:data form) nil)
   (reset! (:data form) (:default-data form))
   (reset! (:form-key form) (random-uuid)))
+
+
+(defn cleanup-form!
+  [form]
+  (rf/dispatch [:ez-wire.form/cleanup (:id form)]))
