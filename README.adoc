@@ -10,7 +10,7 @@ Wire things together, in Clojurescript. Meant to be used together with reagent a
 
 [source,clojure]
 ----
-[ez-wire "0.3.0"]
+[ez-wire "0.3.2"]
 ----
 
 Documentation can be found https://emil0r.github.io/ez-wire-docs/[here].
