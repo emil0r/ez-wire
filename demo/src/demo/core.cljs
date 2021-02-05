@@ -49,6 +49,7 @@
    (explanation-table [[:label? "Set to false to turn off all labels in a form"]
                        [:template "See options for rendering"]
                        [:wiring "See options for rendering"]
+                       [:form/automatic-cleanup? "Set to false to not have automatic clean of the form when a rendered form is destroyed"]
                        [:render [:div "Set to " [:strong ":wizard"] " to render the form as a wizard"]]
                        [:wizard [:div "Map to hold all the steps in the wizard, which fields belongs to each step and allows for an optional legend"
                                  (code '{ ;; static props to apply to the button
@@ -172,6 +173,13 @@
             :extend-via-metadata true
             (t [k] [k args])))])
 
+(defn explain-helper-functions [link]
+  [:div.helper-functions {:id (create-link link)}
+   [:h4 "Helper functions"]
+   [:p "In " [:strong.ns "ez-wire.form"] " you have the following helper functions"]
+   (explanation-table [['cleanup-form! "Takes a form as argument. Will manually cleanup the form in re-frame's db"]
+                       ['reset-form! "Takes a form as argument. Will reset a form to its initial condition when it was first initialized."]])])
+
 
 (defn concepts []
   [:div.concepts
@@ -192,6 +200,7 @@
                 "Explain fields"
                 "Explain validation"
                 "Explain i18n"
+                "Helper functions"
                 "Login form"
                 "Flight form"
                 "Wizard flight form"
@@ -201,7 +210,8 @@
    (explain-form "Explain form")
    (explain-fields "Explain fields")
    (explain-validation "Explain validation")
-   (explain-i18n "Explain i18n")])
+   (explain-i18n "Explain i18n")
+   (explain-helper-functions "Helper functions")])
 
 (defn info []
   [:div.info
