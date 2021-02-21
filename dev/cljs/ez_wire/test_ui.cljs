@@ -17,11 +17,11 @@
                     {:title "Last name"
                      :name :last-name}]
           :model [{:title "Mr"
-                   :first-name "Monkey"
-                   :last-name "McMonkey"}
+                   :first-name "A"
+                   :last-name "McTest"}
                   {:title "Mrs"
-                   :first-name "Donkey"
-                   :last-name "McMonkey"}
+                   :first-name "B"
+                   :last-name "Mctest"}
                   {:title "Ms"
-                   :first-name "Hookay"
-                   :last-name "McMonkey"}]}])
+                   :first-name "C"
+                   :last-name "McTest"}]}])

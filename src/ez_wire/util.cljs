@@ -29,11 +29,7 @@
           (str/replace #"\s+" "-")))
 
 (defn deref? [x]
-  (condp = (type x)
-    reagent.ratom/RAtom true
-    reagent.ratom/RCursor true
-    reagent.ratom/Reaction true
-    false))
+  (satisfies? IDeref x))
 
 (defn deref-or-value [model]
   (if (deref? model) @model model))
