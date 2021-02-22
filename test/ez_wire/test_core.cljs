@@ -58,7 +58,7 @@
            (is (= ::form/invalid @data-form))))
      (testing "reset-form!"
        (form/reset-form! myform)
-       (is (= {} @(:data myform))))
+       (is (= empty-data @(:data myform))))
      (testing "reset-form! with wrong data"
        (form/reset-form! myform {:foobar true})
        (is (= {} @(:data myform))))

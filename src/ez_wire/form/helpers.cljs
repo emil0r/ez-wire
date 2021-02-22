@@ -57,7 +57,7 @@
 (defn reset-form!
   "Reset the form to initial state"
   ([form]
-   (reset-form! form nil))
+   (reset-form! form (:default-data form)))
   ([form data]
    ;; reset all errors to empty arrays
    (doseq [[k v] (:errors form)]
@@ -65,9 +65,10 @@
    ;; ;; reset extra with an empty map
    (reset! (:extra form) {})
    
-   ;; reset the data with the original default-data
+   ;; reset the data. first nil to clean everything,
+   ;; then the data to trigger the re-evaluation
    (reset! (:data form) nil)
-   (reset! (:data form) (or (select-keys data (:field-ks form)) (:default-data form)))
+   (reset! (:data form) (select-keys data (:field-ks form)))
    (reset! (:form-key form) (random-uuid))))
 
 
