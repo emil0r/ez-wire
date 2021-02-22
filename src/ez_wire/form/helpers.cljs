@@ -56,17 +56,19 @@
 
 (defn reset-form!
   "Reset the form to initial state"
-  [form]
-  ;; reset all errors to empty arrays
-  (doseq [[k v] (:errors form)]
-    (reset! v []))
-  ;; ;; reset extra with an empty map
-  (reset! (:extra form) {})
-  
-  ;; reset the data with the original default-data
-  (reset! (:data form) nil)
-  (reset! (:data form) (:default-data form))
-  (reset! (:form-key form) (random-uuid)))
+  ([form]
+   (reset-form! form nil))
+  ([form data]
+   ;; reset all errors to empty arrays
+   (doseq [[k v] (:errors form)]
+     (reset! v []))
+   ;; ;; reset extra with an empty map
+   (reset! (:extra form) {})
+   
+   ;; reset the data with the original default-data
+   (reset! (:data form) nil)
+   (reset! (:data form) (or (select-keys data (:field-ks form)) (:default-data form)))
+   (reset! (:form-key form) (random-uuid))))
 
 
 (defn cleanup-form!
