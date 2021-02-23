@@ -13,7 +13,8 @@
             [re-frame.core :as rf]
             [tongue.core :as tongue])
   (:require-macros [ez-wire.form.macros :refer [defform]]
-                   [ez-wire.form.validation :refer [defvalidation]]))
+                   [ez-wire.form.validation :refer [defmultivalidation
+                                                    defvalidation]]))
 
 ;; utility functions to pass between js and cljs
 
@@ -151,6 +152,18 @@
                    :message "Flight needs dates"
                    :showIcon true}]))
 
+(defmultivalidation first-and-last-name-not-equal
+  #{:flight/first-name :flight/last-name}
+  (fn [{:keys [values]}]
+    (let [{:flight/keys [first-name last-name]} values]
+      (if (some #(str/blank? %) [first-name last-name])
+        true
+        (not= first-name last-name))))
+  (fn [context]
+    [:> ant/Alert {:type "error"
+                   :message "Last name cannot be the same as first name"
+                   :showIcon true}]))
+
 ;; we define our form
 (defform flightform
   {}
@@ -173,7 +186,8 @@
    {:element ant/Input
     :adapter text-adapter
     :name :flight/last-name
-    :validation ::name
+    :validation [::name first-and-last-name-not-equal]
+    :help "You are not allowed to have the same last name as the first name"
     :placeholder :flight/last-name}
    {:element ant/Select
     :adapter select-adapter
