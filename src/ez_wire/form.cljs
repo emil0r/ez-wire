@@ -88,8 +88,14 @@
       (let [affected-fields (get-affected-fields validation)
             update? (if (empty? affected-fields)
                       (should-update-error? old-state k v)
-                      (some #(should-update-error? old-state % (get new-state %))
-                            (set/union affected-fields #{k})))]
+                      ;; we need to run two checks here. first against the values
+                      ;; of the current field. if this does not pass should-update-error?
+                      ;; we do nothing, because the user has not begun to interact with the
+                      ;; field
+                      ;; if it passes that we run the check against affected fields
+                      (and (should-update-error? old-state k v) 
+                           (some #(should-update-error? old-state % (get new-state %))
+                                 (set/union affected-fields #{k}))))]
         (if (valid? validation v form)
           ;; if the validation is valid we change it to hold zero errors
           (conj out [k update? []])

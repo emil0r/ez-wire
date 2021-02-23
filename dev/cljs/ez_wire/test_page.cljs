@@ -84,7 +84,7 @@
     :placeholder ""
     :text "External error should show up even with no other validation added"
     :name :test4
-    :validation [more-than-one]}])
+    :validation [::long-string more-than-one]}])
 
 
 (defn form-page []

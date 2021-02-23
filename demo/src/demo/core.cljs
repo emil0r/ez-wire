@@ -180,7 +180,7 @@
             #{:field1 :field2}
             (fn [context]
               (let [values (:values context)]
-               (every? (fn [v] (not (str/blank? e))) (vals values))))
+               (every? (fn [v] (not (str/blank? v))) (vals values))))
             (fn [_]
               [:div "You need more than one value present"])))
    [:p "nil implements false for " [:strong "valid?"] " and nil for " [:strong "get-error-message"]]
