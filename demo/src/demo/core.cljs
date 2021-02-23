@@ -49,6 +49,7 @@
    (explanation-table [[:label? "Set to false to turn off all labels in a form"]
                        [:template "See options for rendering"]
                        [:wiring "See options for rendering"]
+                       [:form/automatic-cleanup? "Set to false to not have automatic clean of the form when a rendered form is destroyed"]
                        [:render [:div "Set to " [:strong ":wizard"] " to render the form as a wizard"]]
                        [:wizard [:div "Map to hold all the steps in the wizard, which fields belongs to each step and allows for an optional legend"
                                  (code '{ ;; static props to apply to the button
@@ -149,8 +150,12 @@
    [:p "Validation is implemented in ez-wire as a protocol in " [:strong.ns "ez-wire.form.protocols"] " and a macro in " [:strong.ns "ez-wire.form.validation"] ". Default protocol implementations are provided for nil, keywords and vectors."]
    (code '(defprotocol IValidate
             :extend-via-metadata true
-            (valid? [validation value form])
-            (get-error-message [validation value form])))
+            (valid? [validation value form] "Evaluate if this validation is true given the value")
+            (get-error-message [validation value form] "Get any error messages for this validation")
+            (get-affected-fields [validation] "Get any fields that might be affected by this validation. This can include the same field as the validation is attached to.")))
+   [:h5 "defvalidation"]
+   [:p [:strong "defvalidation"] " is a macro that takes an already existing spec, or a spec key and the spec value, and finally a value that will be used to give back the error. The last value can either be a function, a keyword or something else. If it is a function it'll be run against, passing in one value called the context. If it is not a function, the i18n protocol's t function will be called on it."
+    ]
    [:pre>code.clojure
     "(defmacro defvalidation
             ([spec-k t-fn-or-keyword]
@@ -160,6 +165,24 @@
                   (swap! errors assoc ~spec-k ~t-fn-or-keyword))))"]
    (code '(defvalidation ::my-spec ::my-error-message))
    (code '(defvalidation ::my-spec string? ::my-error-message))
+   [:p [:strong "defmultivaldiaton"]" is a macro that takes a name, a set of keys (to be matched against the form the validation is used in), a function and a t-fn-or-keyword value that behaves exactly the same as " [:strong "defvalidation"] "."]
+   [:p "The " [:strong "function"] " takes one argument, which is a context map with the "
+    [:strong "keys :values and :form"]
+    ". The function is expected to return a boolean value, indicating if the validation is valid or not."]
+   [:pre>code.clojure
+    "(defmacro defmultivalidation
+  ([name ks function t-fn-or-keyword]
+   `(do (assert (set? ~ks) \"ks need to be a set\")
+        (def ~name (map->MultiValidation {:ks ~ks :function ~function}))
+        (swap! errors assoc ~name ~t-fn-or-keyword))))
+"]
+   (code '(defmultivalidation more-than-one
+            #{:field1 :field2}
+            (fn [context]
+              (let [values (:values context)]
+               (every? (fn [v] (not (str/blank? v))) (vals values))))
+            (fn [_]
+              [:div "You need more than one value present"])))
    [:p "nil implements false for " [:strong "valid?"] " and nil for " [:strong "get-error-message"]]
    [:p "keyword implements spec/valid? for " [:strong "valid?"] " and returns the " [:strong "t-fn-or-keyword"] " defined in the " [:strong "defvalidation"] " macro."]
    [:p "vector implements a referral to the protocol, where each element in the vector is checked against the protocol. This holds true for both " [:strong "valid?"] " and " [:strong "get-error-message"]]])
@@ -171,6 +194,13 @@
    (code '(defprotocol Ii18n
             :extend-via-metadata true
             (t [k] [k args])))])
+
+(defn explain-helper-functions [link]
+  [:div.helper-functions {:id (create-link link)}
+   [:h4 "Helper functions"]
+   [:p "In " [:strong.ns "ez-wire.form"] " you have the following helper functions"]
+   (explanation-table [['cleanup-form! "Takes a form as argument. Will manually cleanup the form in re-frame's db"]
+                       ['reset-form! "Takes a form as argument. Will reset a form to its initial condition when it was first initialized."]])])
 
 
 (defn concepts []
@@ -192,6 +222,7 @@
                 "Explain fields"
                 "Explain validation"
                 "Explain i18n"
+                "Helper functions"
                 "Login form"
                 "Flight form"
                 "Wizard flight form"
@@ -201,7 +232,8 @@
    (explain-form "Explain form")
    (explain-fields "Explain fields")
    (explain-validation "Explain validation")
-   (explain-i18n "Explain i18n")])
+   (explain-i18n "Explain i18n")
+   (explain-helper-functions "Helper functions")])
 
 (defn info []
   [:div.info

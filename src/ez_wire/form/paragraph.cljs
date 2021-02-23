@@ -30,7 +30,8 @@
 
       :component-will-unmount
       (fn [this]
-        (rf/dispatch [:ez-wire.form/cleanup id]))
+        (when (util/select-option :form/automatic-cleanup? form-map params)
+          (rf/dispatch [:ez-wire.form/cleanup id])))
       
       :reagent-render
       (fn [params form-map & [content]]

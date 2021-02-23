@@ -15,7 +15,6 @@
                                (assoc db ::view view)))
 
 
-
 (defn- home-page []
   (let [state (rf/subscribe [::view])]
     (fn []

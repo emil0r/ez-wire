@@ -1,6 +1,6 @@
-(defproject ez-wire "0.4.0-SNAPSHOT"
+(defproject ez-wire "0.5.0-SNAPSHOT"
 
-  :description "Wiring galore"
+  :description "Helper library for reagent+re-frame"
 
   :url "https://github.com/emil0r/ez-wire"
 
