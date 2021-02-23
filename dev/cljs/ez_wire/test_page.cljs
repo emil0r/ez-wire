@@ -11,7 +11,8 @@
             [re-frame.core :as rf]
             [re-frame.db])
   (:require-macros [ez-wire.form.macros :refer [defform]]
-                   [ez-wire.form.validation :refer [defvalidation]]))
+                   [ez-wire.form.validation :refer [defmultivalidation
+                                                    defvalidation]]))
 
 (enable-console-print!)
 
@@ -47,6 +48,12 @@
             #(> (count %) 2))
   "Need to be a string and more than two characters")
 
+(defmultivalidation more-than-one
+  #{:test3 :test4}
+  (fn [{:keys [values form]}]
+    (every? #(not (str/blank? %)) (vals values)))
+  (fn [_]
+    [:div "You need more than one value present"]))
 
 (defform testform
   {}
@@ -76,7 +83,8 @@
     :adapter text-adapter
     :placeholder ""
     :text "External error should show up even with no other validation added"
-    :name :test4}])
+    :name :test4
+    :validation [more-than-one]}])
 
 
 (defn form-page []

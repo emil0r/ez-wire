@@ -1,10 +1,12 @@
 (ns ez-wire.form
-  (:require [ez-wire.util :as util]
+  (:require [clojure.set :as set]
+            [ez-wire.util :as util]
             [ez-wire.form.elements]
             [ez-wire.form.helpers]
             [ez-wire.form.list :as form.list]
             [ez-wire.form.paragraph :as form.paragraph]
-            [ez-wire.form.protocols :as form.protocols :refer [get-error-message
+            [ez-wire.form.protocols :as form.protocols :refer [get-affected-fields
+                                                               get-error-message
                                                                valid?]]
             [ez-wire.form.table :as form.table]
             [ez-wire.form.template :as form.template]
@@ -71,16 +73,24 @@
                     #(get-error-message % value form)))
          (remove nil?))))
 
-(defn- get-validation-errors [form old-state]
+(defn- should-update-error?
+  [old-state k v]
+  ;; we skip pairs of nils assuming that this is a state of initialization
+  (and (not (and (nil? (get old-state k))
+                 (nil? v)))
+       (not= v (get old-state k))))
+
+(defn- get-validation-errors [form new-state old-state]
   (fn [out [k v]]
-    (let [field (get-in form [:fields k])]
+    (let [{:keys [validation] :as field} (get-in form [:fields k])]
       ;; update? is used to determine if we should do updates to errors
       ;; we still need all the errors for on-valid to properly fire
-      ;; we skip pairs of nils assuming that this is a state of initialization
-      (let [update? (and (not (and (nil? (get old-state k))
-                                   (nil? v)))
-                         (not= v (get old-state k)))]
-        (if (valid? (:validation field) v form)
+      (let [affected-fields (get-affected-fields validation)
+            update? (if (empty? affected-fields)
+                      (should-update-error? old-state k v)
+                      (some #(should-update-error? old-state % (get new-state %))
+                            (set/union affected-fields #{k})))]
+        (if (valid? validation v form)
           ;; if the validation is valid we change it to hold zero errors
           (conj out [k update? []])
           ;; if the validation is invalid we give an explanation to
@@ -109,7 +119,7 @@
     (add-watch (:data form) (str "form-watcher-" (:id form))
                (fn [_ _ old-state new-state]
                  ;; get all errors for all fields
-                 (let [field-errors (->> (reduce (get-validation-errors form old-state) [] new-state)
+                 (let [field-errors (->> (reduce (get-validation-errors form new-state old-state) [] new-state)
                                          (get-external-errors form))]
                    ;; update the RAtoms for the error map
                    (doseq [[k update? errors] field-errors]
