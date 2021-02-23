@@ -8,10 +8,13 @@ Wire things together, in Clojurescript. Meant to be used together with reagent a
 
 == dependancy
 
+image::https://img.shields.io/clojars/v/ez-wire.svg[Clojars Project]
+
 [source,clojure]
 ----
 [ez-wire "0.4.1"]
 ----
+
 
 Documentation can be found https://emil0r.github.io/ez-wire-docs/[here].
 
