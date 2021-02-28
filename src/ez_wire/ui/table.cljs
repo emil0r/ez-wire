@@ -87,7 +87,7 @@
 (defn- row-render [{:keys [row/key-fn] :as context} row row-options column-ks]
   (let [row (->> column-ks
                  (map #(merge row
-                              {:value (get row %)}
+                              {:value (% row)}
                               (get row-options %))))]
     [:tr (map #(td-render context %) row)]))
 
@@ -152,8 +152,17 @@
                   (if (deref? model)
                     (do (reset! model new-model)
                         context)
-                    (assoc context :model new-model)))))]
+                    (assoc context :model new-model)))))
+            (fix-names [{:keys [columns] :as context}]
+              (assoc context :columns (reduce (fn [out column]
+                                                (if-let [f (:fn column)]
+                                                  (conj out (-> column
+                                                                (assoc :name f)
+                                                                (dissoc :fn)))
+                                                  (conj out column)))
+                                              [] columns)))]
       (-> context
+          (fix-names)
           (add-sorts)
           (add-default-sort)
           (add-sort-fn)

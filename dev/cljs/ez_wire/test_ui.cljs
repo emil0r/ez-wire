@@ -16,7 +16,10 @@
                      :name :first-name
                      :sort? true}
                     {:title "Last name"
-                     :name :last-name}]
+                     :name :last-name}
+                    {:title "Full name"
+                     :fn (fn [{:keys [first-name last-name]}]
+                             (str last-name ", " first-name))}]
           :model [{:title "Mr"
                    :first-name "A"
                    :last-name "McTest"}
