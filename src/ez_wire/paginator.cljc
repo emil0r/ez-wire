@@ -25,6 +25,8 @@
     (let [prev (if (or (neg? prev) (zero? prev)) nil prev)]
       {:pages pages
        :page page
+       :length length
+       :pp count-per-page
        :next-seq (range (inc page) (inc pages))
        :prev-seq (reverse (range 1 (if (nil? prev) 1
                                        (inc prev))))

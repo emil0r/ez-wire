@@ -6,7 +6,8 @@
 
 (defn ui-page []
   [table {:show-columns? true
-          :pagination/pp 50
+          :pagination/pp 1
+          :pagination? false
           :columns [{:title "Title"
                      :name :title
                      :sort? true
@@ -21,7 +22,7 @@
                    :last-name "McTest"}
                   {:title "Mrs"
                    :first-name "B"
-                   :last-name "Mctest"}
+                   :last-name "McTest"}
                   {:title "Ms"
                    :first-name "C"
                    :last-name "McTest"}]}])
