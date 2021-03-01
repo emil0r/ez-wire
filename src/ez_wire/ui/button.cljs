@@ -5,5 +5,5 @@
 (defn button [context content]
   (r/with-let [props (-> context
                          (select-keys [:on-click :css :style])
-                         (get-styling ::button))]
+                         (get-styling {:css "ez-wire-button"} ::button))]
     [:button props content]))

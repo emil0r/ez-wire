@@ -181,7 +181,7 @@
                {:keys [show-columns? columns]} context
                props (-> context
                          (select-keys [:css :style])
-                         (get-styling ::table))
+                         (get-styling {:css "ez-wire-table"} ::table))
                column-ks (map :name columns)
                columns (->> columns
                             (mapv (comp (juxt :name identity) #(assemble-column-options context %)))

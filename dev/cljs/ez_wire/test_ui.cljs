@@ -1,7 +1,8 @@
 (ns ez-wire.test-ui
   (:require [ez-wire.ui.styling :refer [get-styling] :refer-macros [with-styling]]
             [ez-wire.ui.button :refer [button]]
-            [ez-wire.ui.table :refer [table]]))
+            [ez-wire.ui.table :refer [table]]
+            [ez-wire.ui.pagination :refer [pagination]]))
 
 
 
@@ -40,5 +41,6 @@
                      {:title "Ms"
                       :first-name "C"
                       :last-name "McTest"}]}]
+     [pagination {:length 100}]
      [button {:on-click #(js/alert "hi")}
       "My button"]]))

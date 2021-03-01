@@ -43,3 +43,19 @@
 .clear {
     clear: both;
 }
+
+
+.ez-wire-pagination .current {
+    background-color: purple;
+}
+
+.ez-wire-pagination ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.ez-wire-pagination li {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 0 2px;
+}

@@ -23,7 +23,15 @@
         :else
         (into css1 css2)))
 
-(defn get-styling [{:keys [style css]} k]
-  (let [global-styling (get @styling* k)]
-    {:style (merge-style (:style global-styling) style)
-     :css (merge-css (:css global-styling) css)}))
+(defn get-styling
+  ([properties k]
+   (get-styling properties nil k))
+  ([{:keys [style css] :as properties} default k]
+   (let [global-styling (get @styling* k)]
+     (merge (dissoc properties :style :css)
+            {:style (-> (:style default)
+                        (merge-style (:style global-styling))
+                        (merge-style style))
+             :class (-> (:css default)
+                        (merge-css (:css global-styling))
+                        (merge-css css))}))))

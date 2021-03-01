@@ -8,25 +8,6 @@
   [x]
   (= (type x) reagent.impl.template/NativeWrapper))
 
-(def ^:private +slug-tr-map+
-  (zipmap "ąàáäâãåæăćčĉęèéëêĝĥìíïîĵłľńňòóöőôõðøśșšŝťțŭùúüűûñÿýçżźž"
-          "aaaaaaaaaccceeeeeghiiiijllnnoooooooossssttuuuuuunyyczzz"))
-
-(defn lower
-  "Converts string to all lower-case.
-  This function works in strictly locale independent way,
-  if you want a localized version, just use `locale-lower`"
-  [s]
-  (when (string? s)
-    (.toLowerCase s)))
-
-(defn slug
-  "Transform text into a URL slug"
-  [& s]
-  (some-> (lower (str/join " " (flatten s)))
-          (str/escape +slug-tr-map+)
-          (str/replace #"[^\w\s\d]+" "")
-          (str/replace #"\s+" "-")))
 
 (defn deref? [x]
   (satisfies? IDeref x))
