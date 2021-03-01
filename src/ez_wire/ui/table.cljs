@@ -1,6 +1,7 @@
 (ns ez-wire.ui.table
   (:require [ez-wire.paginator :refer [paginate]]
             [ez-wire.protocols :refer [t]]
+            [ez-wire.ui.styling :refer [get-styling]]
             [ez-wire.util :refer [deref? deref-or-value]]
             [re-frame.core :as rf]
             [reagent.core :as r]))
@@ -169,7 +170,7 @@
           (add-pagination)
           (add-possibly-index))))) 
 
-(defn table [{:keys [css] :as context}]
+(defn table [context]
   (r/with-let [;; setup default options that we can send to other functions
                context (merge {:show-columns? true
                                :up-arrow "▲"
@@ -178,8 +179,9 @@
                                :id (random-uuid)}
                               (init-context context))
                {:keys [show-columns? columns]} context
-               props (if css
-                       {:class css})
+               props (-> context
+                         (select-keys [:css :style])
+                         (get-styling ::table))
                column-ks (map :name columns)
                columns (->> columns
                             (mapv (comp (juxt :name identity) #(assemble-column-options context %)))
