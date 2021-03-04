@@ -19,14 +19,14 @@
 (defn text-adapter [{:keys [element] :as field}]
   (let [f (r/adapt-react-class element)]
     (fn [{:keys [model value] :as data}]
-      [f (merge {:defaultValue value
+      [f (merge {:value (or @model value)
                  :on-change #(reset! model (-> % .-target .-value))}
                 (select-keys data [:id :placeholder]))])))
 
 (defn integer-adapter [{:keys [element] :as field}]
   (let [f (r/adapt-react-class element)]
     (fn [{:keys [model value] :as data}]
-      [f (merge {:defaultValue (str value)
+      [f (merge {:value (str (or @model value))
                  :on-change #(let [value (-> % .-target .-value)
                                    int-value (js/parseInt value)]
                                (if-not (js/isNaN int-value)
@@ -56,7 +56,21 @@
     [:div "You need more than one value present"]))
 
 (defform testform
-  {}
+  {:branch/branching? true
+   :branch/branches {:test5 (fn [form k value]
+                              (condp = value
+                                "all"
+                                {:show-ks :all}
+                                "one"
+                                {:show-ks [:test1 :test2]
+                                 :hide-ks :all
+                                 :fields {:test1 {:placeholder "foo"
+                                                  :help "My new help text"}
+                                          :test2 {:placeholder "bar"
+                                                  :help "I was not here before"}}}
+                                "two"
+                                {:show-ks [:test3 :test4]
+                                 :hide-ks :all}))}}
   [{:element e/input
     :adapter text-adapter
     :placeholder "foobar"
@@ -84,10 +98,20 @@
     :placeholder ""
     :text "External error should show up even with no other validation added"
     :name :test4
-    :validation [::long-string more-than-one]}])
+    :validation [::long-string more-than-one]}
+   {:element e/dropdown
+    :options ["all" "one" "two"]
+    :name :test5}
+   {:element e/text
+    :name :test6
+    :value "This is test 6"}
+   {:element e/text
+    :name :test7
+    :value "This is test 7"}])
 
 
 (defn form-page []
+  (println "rendered form-page")
   (let [data {:test1 "Elsa"
               :test2 "asdf"}
         form (testform {} data)
@@ -145,41 +169,42 @@
         [:div
          [:h2 "My testform [table]"]
          [form/as-table {} form]]
-        [:div
-         [:h2 "My testform [list]"]
-         [form/as-list {} form]]
-        [:div
-         [:h2 "My testform [paragraph]"]
-         [form/as-paragraph {} form]]
-        [:div
-         [:h2 "My testform [template]"]
-         [form/as-template {:template/element :span
-                            :template [:div.template :$key
-                                       :$label
-                                       :$field
-                                       :$errors
-                                       :$text
-                                       :$help]}
-          form]]
-        [:div
-         [:h2 "My testform [wire]"]
-         [form/as-wire {:wiring/element :span
-                        :class "foobar"
-                        :wiring
-                        [:div.wire
-                         [:div.number1
-                          :$test1.label
-                          :$test1.field
-                          :$test1.errors]
-                         [:div.number2
-                          :$test2.label
-                          :$test2.field
-                          :$test2.errors]]}
-          form]]
-        [:div
-         [:h2 "My wizard testform [table]"]
-         [:div "Step " @wizard-current-step]
-         [form/as-table {} wizard-form]]]
+        ;; [:div
+        ;;  [:h2 "My testform [list]"]
+        ;;  [form/as-list {} form]]
+        ;; [:div
+        ;;  [:h2 "My testform [paragraph]"]
+        ;;  [form/as-paragraph {} form]]
+        ;; [:div
+        ;;  [:h2 "My testform [template]"]
+        ;;  [form/as-template {:template/element :span
+        ;;                     :template [:div.template :$key
+        ;;                                :$label
+        ;;                                :$field
+        ;;                                :$errors
+        ;;                                :$text
+        ;;                                :$help]}
+        ;;   form]]
+        ;; [:div
+        ;;  [:h2 "My testform [wire]"]
+        ;;  [form/as-wire {:wiring/element :span
+        ;;                 :class "foobar"
+        ;;                 :wiring
+        ;;                 [:div.wire
+        ;;                  [:div.number1
+        ;;                   :$test1.label
+        ;;                   :$test1.field
+        ;;                   :$test1.errors]
+        ;;                  [:div.number2
+        ;;                   :$test2.label
+        ;;                   :$test2.field
+        ;;                   :$test2.errors]]}
+        ;;   form]]
+        ;; [:div
+        ;;  [:h2 "My wizard testform [table]"]
+        ;;  [:div "Step " @wizard-current-step]
+        ;;  [form/as-table {} wizard-form]]
+        ]
        [:div.clear]])))
 
 (defn home-page []
