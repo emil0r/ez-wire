@@ -1,4 +1,4 @@
-(defproject ez-wire "0.4.1"
+(defproject ez-wire "0.5.0-SNAPSHOT"
 
   :description "Helper library for reagent+re-frame"
 
