@@ -14,28 +14,33 @@
 
 
 (defn render-error-element [{:keys [error-element name css]
-                             :as field} form-map]
+                             :as field} form]
   (when-not (#{:dispatch} error-element)
     (if error-element
-      [error-element {:model (get-in form-map [:errors name])
+      [error-element {:model (get-in form [:errors name])
                       :class (get css :error "error")}])))
 
 
-(defn render-field [{:keys [field-fn name] :as field} form-map]
+
+(defn- get-branching-args [branch-data]
+  (reduce merge (vals branch-data)))
+
+(defn render-field [{:keys [field-fn name] :as field} {:keys [branching] :as form}]
   [field-fn (-> field
-                (assoc :model (reagent/cursor (:data form-map) [name]))
+                (merge (get (get-branching-args @branching) name))
+                (assoc :model (reagent/cursor (:data form) [name]))
                 (dissoc :wiring :template :label))])
 
 
-(defn render-text [{:keys [field-fn text css] :as field} form-map]
+(defn render-text [{:keys [field-fn text css] :as field} form]
   (if text
     [:div {:class (get css :text "text")} (t text)]))
 
-(defn render-help [{:keys [field-fn help css] :as field} form-map]
+(defn render-help [{:keys [field-fn help css] :as field} form]
   (if help
     [:div {:class (get css :help "help")} (t help)]))
 
-(defn render-label [{:keys [css id label name] :as field} form-map]
+(defn render-label [{:keys [css id label name] :as field} form]
   (if (false? label)
     nil
     [:label {:for id :class (get css :label "label")} (t (or label name))]))
@@ -50,25 +55,34 @@
                  :else
                  (:wiring field)))))
 
-(defn get-body [row-fn params form-map]
-  (doall
-   (map (fn [field]
-          (let [field (assoc-wiring field params)
-                ;; fetch the row
-                row (row-fn field form-map)]
-            ;; if we have wiring or label-wiring for the field we replace it using wiring
+(defn render-wiring [{:keys [wiring active?] :as field} form]
+  (let [rendered (wiring/wiring [:$wrapper
+                                 wiring]
+                                {:$wrapper wiring/unwrapper
+                                 :$key     {:key (str "ez-wire-form-" (:id field))}
+                                 :$label   (render-label field form)
+                                 :$field   (render-field field form)
+                                 :$errors  (render-error-element field form)
+                                 :$text    (render-text field form)
+                                 :$help    (render-help field form)})
+        elements (map-indexed (fn [idx e] [idx e]) rendered)]
+    (fn [{:keys [active?]} _]
+      (when @active?
+        [:<>
+         ;; TODO: Examine why the key does not appear to work
+         (for [[idx element] elements]
+           ^{:key idx}
+           element)]))))
 
-            (cond (:wiring field)
-                  (wiring/wiring row {:$wrapper wiring/unwrapper
-                                      :$key     {:key (str "ez-wire-form-" (:id field))}
-                                      :$label   (render-label field form-map)
-                                      :$field   (render-field field form-map)
-                                      :$errors  (render-error-element field form-map)
-                                      :$text    (render-text field form-map)
-                                      :$help    (render-help field form-map)})
-                  
 
-                  ;; otherwise we're good to go with using the default row
-                  :else
-                  row)))
-        (map #(get-in form-map [:fields %]) (:field-ks form-map)))))
+(defn get-body [row-fn params form]
+  (let [fields (map (comp #(assoc-wiring % params)
+                          #(get-in form [:fields %])) (:field-ks form))]
+    (fn [row-fn params form]
+      [:<>
+       (for [field fields]
+         (if (:wiring field)
+           ^{:key (:id field)}
+           [render-wiring field form]
+           ^{:key (:id field)}
+           [row-fn field form]))])))
