@@ -148,7 +148,7 @@
   "Add validation and branching checks for the RAtom as it changes"
   [form]
   (let [{{on-valid :on-valid} :options} form]
-    (add-watch (:data form) (str "form-watcher-" (:id form))
+    (add-watch (:data form) (:id form)
                (fn [_ _ old-state new-state]
                  (let [changed-field-k (get-changed-field old-state new-state)]
                   ;; get all errors for all fields
