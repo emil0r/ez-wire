@@ -14,6 +14,13 @@
         (zip/up)
         (zip/replace rest-of-location))))
 
+(defn marker-component [comp & args]
+  (fn [loc markers]
+    (let [new-loc (zip/replace loc comp)]
+      (reduce (fn [out arg]
+                (zip/insert-right out arg))
+              new-loc (reverse args)))))
+
 (defn wire [markers loc]
   (let [node (zip/node loc)
         mk (marker node)]

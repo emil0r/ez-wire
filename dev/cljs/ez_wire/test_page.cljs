@@ -111,7 +111,6 @@
 
 
 (defn form-page []
-  (println "rendered form-page")
   (let [data {:test1 "Elsa"
               :test2 "asdf"}
         form (testform {} data)
@@ -169,37 +168,64 @@
         [:div
          [:h2 "My testform [table]"]
          [form/as-table {} form]]
-        ;; [:div
-        ;;  [:h2 "My testform [list]"]
-        ;;  [form/as-list {} form]]
-        ;; [:div
-        ;;  [:h2 "My testform [paragraph]"]
-        ;;  [form/as-paragraph {} form]]
-        ;; [:div
-        ;;  [:h2 "My testform [template]"]
-        ;;  [form/as-template {:template/element :span
-        ;;                     :template [:div.template :$key
-        ;;                                :$label
-        ;;                                :$field
-        ;;                                :$errors
-        ;;                                :$text
-        ;;                                :$help]}
-        ;;   form]]
-        ;; [:div
-        ;;  [:h2 "My testform [wire]"]
-        ;;  [form/as-wire {:wiring/element :span
-        ;;                 :class "foobar"
-        ;;                 :wiring
-        ;;                 [:div.wire
-        ;;                  [:div.number1
-        ;;                   :$test1.label
-        ;;                   :$test1.field
-        ;;                   :$test1.errors]
-        ;;                  [:div.number2
-        ;;                   :$test2.label
-        ;;                   :$test2.field
-        ;;                   :$test2.errors]]}
-        ;;   form]]
+        [:div
+         [:h2 "My testform [list]"]
+         [form/as-list {} form]]
+        [:div
+         [:h2 "My testform [paragraph]"]
+         [form/as-paragraph {} form]]
+        [:div
+         [:h2 "My testform [template]"]
+         [form/as-template {:template/element :span
+                            :template [:div.template :$key
+                                       :$label
+                                       :$field
+                                       :$errors
+                                       :$text
+                                       :$help]}
+          form]]
+        [:div
+         [:h2 "My testform [wire]"]
+         [form/as-wire {:wiring/element :span
+                        :class "foobar"
+                        :wiring
+                        [:div.wire
+                         [:$test1.branch
+                          [:div.number1
+                           :$test1.label
+                           :$test1.field
+                           :$test1.errors]]
+                         [:$test2.branch
+                          [:div.number2
+                           :$test2.label
+                           :$test2.field
+                           :$test2.errors]]
+                         [:$test3.branch
+                          [:div.number3
+                           :$test3.label
+                           :$test3.field
+                           :$test3.errors]]
+                         [:$test4.branch
+                          [:div.number4
+                           :$test4.label
+                           :$test4.field
+                           :$test4.errors]]
+                         [:$test5.branch
+                          [:div.number5
+                           :$test5.label
+                           :$test5.field
+                           :$test5.errors]]
+                         [:$test6.branch
+                          [:div.number6
+                           :$test6.label
+                           :$test6.field
+                           :$test6.errors]]
+                         [:$test7.branch
+                          [:div.number7
+                           :$test7.label
+                           :$test7.field
+                           :$test7.errors]]]}
+          form]]
         ;; [:div
         ;;  [:h2 "My wizard testform [table]"]
         ;;  [:div "Step " @wizard-current-step]
