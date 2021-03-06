@@ -64,15 +64,10 @@
                                  :$field   (render-field field form)
                                  :$errors  (render-error-element field form)
                                  :$text    (render-text field form)
-                                 :$help    (render-help field form)})
-        elements (map-indexed (fn [idx e] [idx e]) rendered)]
+                                 :$help    (render-help field form)})]
     (fn [{:keys [active?]} _]
       (when @active?
-        [:<>
-         ;; TODO: Examine why the key does not appear to work
-         (for [[idx element] elements]
-           ^{:key idx}
-           element)]))))
+        (into [:<>] rendered)))))
 
 
 (defn get-body [row-fn params form]
