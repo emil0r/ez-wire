@@ -54,7 +54,8 @@
                       class]
                :or {style {}
                     class ""}} params]
-          [element {:key (util/slug "form-wire" @form-key)
-                    :style style
-                    :class class}
+          [element (merge {:key (util/slug "form-wire" @form-key)}
+                          (if (not= element :<>)
+                            {:style style
+                             :class class}))
            body]))})))
