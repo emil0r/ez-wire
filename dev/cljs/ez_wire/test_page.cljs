@@ -90,7 +90,7 @@
    {:element e/input
     :adapter text-adapter
     :placeholder "Third"
-    :wiring [:tr [:td "bar"] [:td :$field]]
+    :wiring [:tr [:td "bar"] [:td :$field :$errors]]
     :validation [::long-string]
     :name :test3}
    {:element e/input
@@ -161,7 +161,11 @@
          [:> e/button
           {:class "valid-button"
            :on-click #(js/alert (pr-str @valid-form))}
-          "Valid form?"]]
+          "Valid form?"]
+         [:> e/button
+          {:class "error-button"
+           :on-click #(js/alert (pr-str (:errors form)))}
+          "Current errors"]]
         [:div {:class "internal-info"}
          [:h2 "Internal state of the form"]
          (when @(:data form)

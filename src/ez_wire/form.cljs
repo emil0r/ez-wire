@@ -159,14 +159,27 @@
                       (when update?
                         (rf/dispatch [::error (:id form) k errors])
                         (reset! (get-in form [:errors k]) errors)))
-                    ;; if there are no errors then the form is valid and we can fire off the function
-                    (let [valid? (every? empty? (map last field-errors))
-                          to-send (if valid? new-state ::invalid)]
+
+                    ;; handle branching before validity
+                    ;; validity depends on the updated branching to decide
+                    ;; which fields are active or not
+                    (handle-branching form changed-field-k (get new-state changed-field-k))
+
+                    ;; if there are no errors then the form is
+                    ;; valid and we can fire off the function
+                    (let [active-fields (reduce (fn [out k]
+                                                  (if @(:active? (get-in form [:fields k]))
+                                                    (conj out k)
+                                                    out))
+                                                #{} (:field-ks form))
+                          valid? (->> field-errors
+                                      (filter #(active-fields (first %)))
+                                      (map last field-errors)
+                                      (every? empty?))
+                          to-send (if valid? (select-keys new-state active-fields) ::invalid)]
                       (when (fn? on-valid)
                         (on-valid to-send))
-                      (rf/dispatch [::on-valid (:id form) to-send])))
-                  ;; handle branching
-                  (handle-branching form changed-field-k (get new-state changed-field-k)))))))
+                      (rf/dispatch [::on-valid (:id form) to-send]))))))))
 
 (defn- get-default-value [data name field]
   (get data name (:value field)))
