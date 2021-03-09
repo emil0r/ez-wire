@@ -180,9 +180,11 @@
                        form-options
                        override-options)
         map-fields (->> fields
-                        (map (fn [{:keys [name id error-element] :as field}]
+                        (map (fn [{:keys [name id error-element active?] :as field}]
                                [name (assoc field
-                                            :active? (atom true)
+                                            :active? (atom (if (some? active?)
+                                                             active?
+                                                             true))
                                             :field-fn (get-field-fn field)
                                             :value (get-default-value data name field)
                                             :error-element (or error-element
@@ -208,6 +210,7 @@
                          :extra        (atom {})
                          :form-key     (atom (random-uuid))
                          :branching    (atom {})
+                         :wizard       (atom {})
                          :errors       errors
                          :data         (atom {})})]
     (add-watcher form)

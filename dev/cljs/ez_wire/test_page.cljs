@@ -62,7 +62,7 @@
                                 "all"
                                 {:show-ks :all}
                                 "one"
-                                {:show-ks [:test1 :test2]
+                                {:show-ks [:test1 :test2 :test6 :test7]
                                  :hide-ks :all
                                  :fields {:test1 {:placeholder "foo"
                                                   :help "My new help text"}
@@ -104,9 +104,11 @@
     :name :test5}
    {:element e/text
     :name :test6
+    :active? false
     :value "This is test 6"}
    {:element e/text
     :name :test7
+    :active? false
     :value "This is test 7"}])
 
 
@@ -119,7 +121,7 @@
                                                  :legend [:h3 "Part 1"]}
                                                 {:fields [:test2]
                                                  :legend [:h3 "Part 2"]}
-                                                {:fields [:test3 :test4]
+                                                {:fields [:test3 :test4 :test5 :test6 :test7]
                                                  :legend [:h3 "Part 3"]}]}}
                               data)
         wizard-current-step (rf/subscribe [:ez-wire.form.wizard/current-step (:id wizard-form)])
@@ -226,11 +228,10 @@
                            :$test7.field
                            :$test7.errors]]]}
           form]]
-        ;; [:div
-        ;;  [:h2 "My wizard testform [table]"]
-        ;;  [:div "Step " @wizard-current-step]
-        ;;  [form/as-table {} wizard-form]]
-        ]
+        [:div
+         [:h2 "My wizard testform [table]"]
+         [:div "Step " @wizard-current-step]
+         [form/as-table {} wizard-form]]]
        [:div.clear]])))
 
 (defn home-page []

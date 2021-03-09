@@ -1,5 +1,6 @@
 (ns ez-wire.form.common
   (:require [clojure.spec.alpha :as spec]
+            [ez-wire.form.helpers :refer [wizard?]]
             [ez-wire.protocols :refer [t]]
             [ez-wire.wiring :as wiring]
             [reagent.core :as reagent]))
@@ -70,14 +71,23 @@
         (into [:<>] rendered)))))
 
 
+(defn- get-wizard-fields [form params]
+  (let [current-step (get @(:wizard form) :current-step)
+        current-fields (get-in form [:options :wizard :steps current-step :fields])]
+    (map (comp #(assoc-wiring % params)
+               #(get-in form [:fields %])) current-fields)))
+
 (defn get-body [row-fn params form]
   (let [fields (map (comp #(assoc-wiring % params)
                           #(get-in form [:fields %])) (:field-ks form))]
     (fn [row-fn params form]
-      [:<>
-       (for [field fields]
-         (if (:wiring field)
-           ^{:key (:id field)}
-           [render-wiring field form]
-           ^{:key (:id field)}
-           [row-fn field form]))])))
+      (let [fields (if (wizard? form)
+                     (get-wizard-fields form params)
+                     fields)]
+        [:<>
+         (for [field fields]
+           (if (:wiring field)
+             ^{:key (:id field)}
+             [render-wiring field form]
+             ^{:key (:id field)}
+             [row-fn field form]))]))))
