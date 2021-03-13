@@ -147,7 +147,12 @@
 (defn- add-watcher
   "Add validation and branching checks for the RAtom as it changes"
   [form]
-  (let [{{on-valid :on-valid} :options} form]
+  (let [{{on-valid :on-valid} :options} form
+        ;; Watcher is manually run when initiating a form. We
+        ;; do not wish to run branching during the initiation however,
+        ;; so we add this little variable for initiation to handle
+        ;; that problem
+        branching-initiated? (clojure.core/atom false)]
     (add-watch (:data form) (:id form)
                (fn [_ _ old-state new-state]
                  (let [changed-field-k (get-changed-field old-state new-state)]
@@ -162,8 +167,12 @@
 
                     ;; handle branching before validity
                     ;; validity depends on the updated branching to decide
-                    ;; which fields are active or not
-                    (handle-branching form changed-field-k (get new-state changed-field-k))
+                    ;; which fields are active or not.
+                    ;; branching initiation is also handled here.
+                    (if @branching-initiated?
+                      (when changed-field-k
+                        (handle-branching form changed-field-k (get new-state changed-field-k)))
+                      (reset! branching-initiated? true))
 
                     ;; if there are no errors then the form is
                     ;; valid and we can fire off the function
