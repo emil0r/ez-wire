@@ -57,20 +57,20 @@
 
 (defform testform
   {:branch/branching? true
-   :branch/branches {:test5 (fn [form k value]
+   :branch/branches {:test5 (fn [form field-k value]
                               (condp = value
                                 "all"
-                                {:show-ks :all}
+                                {:show-fields :all}
                                 "one"
-                                {:show-ks [:test1 :test2 :test6 :test7]
-                                 :hide-ks :all
+                                {:show-fields [:test1 :test2 :test6 :test7]
+                                 :hide-fields :all
                                  :fields {:test1 {:placeholder "foo"
                                                   :help "My new help text"}
                                           :test2 {:placeholder "bar"
                                                   :help "I was not here before"}}}
                                 "two"
-                                {:show-ks [:test3 :test4]
-                                 :hide-ks :all}))}}
+                                {:show-fields [:test3 :test4]
+                                 :hide-fields :all}))}}
   [{:element e/input
     :adapter text-adapter
     :placeholder "foobar"

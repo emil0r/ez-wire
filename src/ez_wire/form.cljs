@@ -120,22 +120,22 @@
               (conj out [k update? errors])))
           [] field-errors))
 
-(defn- handle-branching [form k value]
-  (if (and (some? k)
+(defn- handle-branching [form field-name value]
+  (if (and (some? field-name)
            (get-in form [:options :branch/branching?]))
-    (if-let [f (get-in form [:options :branch/branches k])]
-      (let [result (f form k value)]
-        (let [{:keys [show-ks hide-ks]} result
-              show-ks (set (if (= show-ks :all) (:field-ks form) show-ks))
-              show-ks (if (:exclude-branching-field? result)
-                        show-ks
-                        (conj show-ks k))
-              hide-ks (set (if (= hide-ks :all) (:field-ks form) hide-ks))]
-          (doseq [k (set/difference hide-ks show-ks)]
-            (reset! (get-in form [:fields k :active?]) false))
-          (doseq [k show-ks]
-            (reset! (get-in form [:fields k :active?]) true))
-          (swap! (:branching form) assoc k (:fields result)))))))
+    (if-let [f (get-in form [:options :branch/branches field-name])]
+      (let [result (f form field-name value)
+            {:keys [show-fields hide-fields]} result
+            show-fields (set (if (= show-fields :all) (:field-ks form) show-fields))
+            show-fields (if (:exclude-branching-field? result)
+                      show-fields
+                      (conj show-fields field-name))
+            hide-fields (set (if (= hide-fields :all) (:field-fields form) hide-fields))]
+        (doseq [k (set/difference hide-fields show-fields)]
+          (reset! (get-in form [:fields k :active?]) false))
+        (doseq [k show-fields]
+          (reset! (get-in form [:fields k :active?]) true))
+        (swap! (:branching form) assoc field-name (:fields result))))))
 
 (defn- get-changed-field [old-state new-state]
   (reduce (fn [out [k value]]

@@ -21,7 +21,7 @@
 (defform loginform
   {}
   [{:element input-text
-    :placeholder "Input your password"
+    :placeholder "Input your username"
     :name :username}
    {:element input-password
     :placeholder "Input your password"
