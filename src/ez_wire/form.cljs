@@ -124,8 +124,8 @@
   (if (and (some? field-name)
            (get-in form [:options :branch/branching?]))
     (if-let [f (get-in form [:options :branch/branches field-name])]
-      (let [result (f form field-name value)
-            {:keys [show-fields hide-fields]} result
+      (let [result (f {:form form :field-k field-name :value value})
+            {:keys [show-fields hide-fields fields]} result
             show-fields (set (if (= show-fields :all) (:field-ks form) show-fields))
             show-fields (if (:exclude-branching-field? result)
                       show-fields
@@ -135,7 +135,7 @@
           (reset! (get-in form [:fields k :active?]) false))
         (doseq [k show-fields]
           (reset! (get-in form [:fields k :active?]) true))
-        (swap! (:branching form) assoc field-name (:fields result))))))
+        (swap! (:branching form) assoc field-name fields)))))
 
 (defn- get-changed-field [old-state new-state]
   (reduce (fn [out [k value]]

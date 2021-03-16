@@ -57,7 +57,7 @@
 
 (defform testform
   {:branch/branching? true
-   :branch/branches {:test5 (fn [form field-k value]
+   :branch/branches {:test5 (fn [{:keys [value] :as _context}]
                               (condp = value
                                 "all"
                                 {:show-fields :all}
