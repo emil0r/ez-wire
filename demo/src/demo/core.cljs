@@ -202,6 +202,38 @@
    (explanation-table [['cleanup-form! "Takes a form as argument. Will manually cleanup the form in re-frame's db"]
                        ['reset-form! "Takes a form as argument. Will reset a form to its initial condition when it was first initialized."]])])
 
+(defn explain-branching [link]
+  [:div.branching {:id (create-link link)}
+   [:h4 "branching"]
+   [:p "Branching is a way for a form in ez-wire.form to branch a form into a tree structure, where each choice in the form, can lead to new choices be made available, or choices to be set in stone."]
+   [:p "When declaring a form, or initating a form, you can define a branch in the following way"]
+   (code '(defform myform
+            {:branch/branching? true
+             :branch/branches {:field1 (fn [{:keys [form field-k value]}]
+                                         (condp = value
+                                           "all"
+                                           {:show-fields :all}
+                                           "none"
+                                           {:hide-fields :all}
+                                           "change-other-fields"
+                                           {
+                                            :fields {:dropdown-field2 {:options ["new"
+                                                                                 "options"
+                                                                                 "to"
+                                                                                 "my"
+                                                                                 "dropdown"]}}}
+                                           "hide-everything"
+                                           {:hide-fields :all
+                                            :exclude-branching-field? false}))}}
+            [{:name :field1
+              :element input-text}
+             {:name :dropdown-field2
+              :element input-dropdown
+              :options ["my"
+                        "options"]}
+             {:name :field-i-dont-show
+              :active? false
+              :element input-text}]))])
 
 (defn concepts []
   [:div.concepts
@@ -222,6 +254,7 @@
                 "Explain fields"
                 "Explain validation"
                 "Explain i18n"
+                "Explain branching"
                 "Helper functions"
                 "Login form"
                 "Flight form"
@@ -233,6 +266,7 @@
    (explain-fields "Explain fields")
    (explain-validation "Explain validation")
    (explain-i18n "Explain i18n")
+   (explain-branching "Explain branching")
    (explain-helper-functions "Helper functions")])
 
 (defn info []
