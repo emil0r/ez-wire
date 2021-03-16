@@ -92,7 +92,7 @@
   (let [f (r/adapt-react-class element)]
     (fn [{:keys [model value placeholder] :as data}]
       (let [placeholder (if placeholder (t placeholder))]
-        [f (merge {:default-value (str value)
+        [f (merge {:value @model
                    :placeholder placeholder                   
                    :on-change #(reset! model (-> % .-target .-value))}
                   (select-keys data [:id]))]))))
@@ -101,27 +101,23 @@
   ;; first level is the initilization phase of the field
   (let [f (r/adapt-react-class element)]
     (fn [{:keys [model value] :as data}]
-      ;; second level is a Form-2 reagent component
-      (let [default-value (when value
-                            (let [[start end] value]
-                              #js [(if start
-                                     (js/moment start))
-                                   (if end
-                                     (js/moment end))]))]
-        (fn [{:keys [model] :as data}]
-          ;; inner part of the Form-2 reagent component
-          (let [current-locale @locale-sub]
-            [f {:default-value default-value
-                :locale (if (= current-locale :en)
-                          (.-DatePicker ant/locales.en_US)
-                          (.-DatePicker ant/locales.sv_SE))
-                :on-change #(let [[start end] (map (fn [moment] (.toDate moment)) (js->clj %))]
-                              (reset! model [start end]))}]))))))
+      (let [current-locale @locale-sub
+            current-value (let [[start end] @model]
+                            #js [(if start
+                                   (js/moment start))
+                                 (if end
+                                   (js/moment end))])]
+        [f {:value current-value
+            :locale (if (= current-locale :en)
+                      (.-DatePicker ant/locales.en_US)
+                      (.-DatePicker ant/locales.sv_SE))
+            :on-change #(let [[start end] (map (fn [moment] (.toDate moment)) (js->clj %))]
+                          (reset! model [start end]))}]))))
 
 (defn select-adapter [{:keys [element] :as field}]
   (let [f (r/adapt-react-class element)]
     (fn [{:keys [name model value source source/id source/title] :as data}]
-      [f {:default-value (t value)
+      [f {:value (t @model)
           :on-change #(reset! model (str->kw %))
           :filter-option false}
        [:<>
