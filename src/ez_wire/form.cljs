@@ -130,7 +130,9 @@
             show-fields (if (:exclude-branching-field? result)
                       show-fields
                       (conj show-fields field-name))
-            hide-fields (set (if (= hide-fields :all) (:field-fields form) hide-fields))]
+            hide-fields (set (if (= hide-fields :all) (:field-ks form) hide-fields))]
+        (println {:show-fields show-fields
+                  :hide-fields hide-fields})
         (doseq [k (set/difference hide-fields show-fields)]
           (reset! (get-in form [:fields k :active?]) false))
         (doseq [k show-fields]
@@ -235,6 +237,10 @@
                          :wizard       (atom {})
                          :errors       errors
                          :data         (atom {})})]
+
+    (doseq [k field-ks]
+      (handle-branching form k (get -data k)))
+    
     (add-watcher form)
     ;; run validation once before we send back our form
     (reset! (:data form) -data)

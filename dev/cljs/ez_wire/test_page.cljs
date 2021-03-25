@@ -70,7 +70,11 @@
                                                   :help "I was not here before"}}}
                                 "two"
                                 {:show-fields [:test3 :test4]
-                                 :hide-fields :all}))}}
+                                 :hide-fields :all}
+
+                                ;; default
+                                ;; needs one for initiation of the form
+                                {}))}}
   [{:element e/input
     :adapter text-adapter
     :placeholder "foobar"
@@ -114,7 +118,8 @@
 
 (defn form-page []
   (let [data {:test1 "Elsa"
-              :test2 "asdf"}
+              :test2 "asdf"
+              :test5 "two"}
         form (testform {} data)
         wizard-form (testform {:render :wizard
                                :wizard {:steps [{:fields [:test1]
