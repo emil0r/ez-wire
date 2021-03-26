@@ -131,8 +131,6 @@
                       show-fields
                       (conj show-fields field-name))
             hide-fields (set (if (= hide-fields :all) (:field-ks form) hide-fields))]
-        (println {:show-fields show-fields
-                  :hide-fields hide-fields})
         (doseq [k (set/difference hide-fields show-fields)]
           (reset! (get-in form [:fields k :active?]) false))
         (doseq [k show-fields]
@@ -185,7 +183,7 @@
                                                 #{} (:field-ks form))
                           valid? (->> field-errors
                                       (filter #(active-fields (first %)))
-                                      (map last field-errors)
+                                      (map last)
                                       (every? empty?))
                           to-send (if valid? (select-keys new-state active-fields) ::invalid)]
                       (when (fn? on-valid)
