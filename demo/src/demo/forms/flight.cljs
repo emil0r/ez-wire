@@ -244,32 +244,31 @@
       "Remove external error"]]]])
 
 (defn component []
-  (let [;; initialized flightform with the start date for :flight/dates
-        ;; as today
-        form (flightform {} {:flight/dates [(js/Date.) nil]})
-        ;; subscribe to our form
-        data-form (rf/subscribe [::form/on-valid (:id form)])]
-    (fn []
-      [:div
-       [:div.columns
-        [:div.column
-         [langauge-buttons]]
-        [:div.column
-         [reset-form form]]]
-       [:div.columns
-        [:div.column
-         [form/as-table {} form]
-         [:> ant/Button
-          {:type "primary"
-           ;; valid? is a helper function that either takes a value, a form
-           ;; or a reagent RAtom/RCursor/Reaction
-           :disabled (not (valid? data-form))
-           :on-click #(js/alert (pr-str @data-form))}
-          (t :flight/book)]]
-        [:div.column
-         [external-error-buttons form]
-         [:h4.mt-5 "Data in the form"]
-         [data @data-form]]]])))
+  (r/with-let [;; initialized flightform with the start date for :flight/dates
+               ;; as today
+               form (flightform {} {:flight/dates [(js/Date.) nil]})
+               ;; subscribe to our form
+               data-form (rf/subscribe [::form/on-valid (:id form)])]
+    [:div
+     [:div.columns
+      [:div.column
+       [langauge-buttons]]
+      [:div.column
+       [reset-form form]]]
+     [:div.columns
+      [:div.column
+       [form/as-table {} form]
+       [:> ant/Button
+        {:type "primary"
+         ;; valid? is a helper function that either takes a value, a form
+         ;; or a reagent RAtom/RCursor/Reaction
+         :disabled (not (valid? data-form))
+         :on-click #(js/alert (pr-str @data-form))}
+        (t :flight/book)]]
+      [:div.column
+       [external-error-buttons form]
+       [:h4.mt-5 "Data in the form"]
+       [data @data-form]]]]))
 
 (defn form-flight []
   [:div.form-flight

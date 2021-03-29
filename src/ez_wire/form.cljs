@@ -130,12 +130,24 @@
             show-fields (if (:exclude-branching-field? result)
                       show-fields
                       (conj show-fields field-name))
-            hide-fields (set (if (= hide-fields :all) (:field-ks form) hide-fields))]
-        (doseq [k (set/difference hide-fields show-fields)]
+            hide-fields (set (if (= hide-fields :all) (:field-ks form) hide-fields))
+            to-hide (set/difference hide-fields show-fields)]
+        ;; hide fields
+        (doseq [k to-hide]
           (reset! (get-in form [:fields k :active?]) false))
+        ;; show fields
         (doseq [k show-fields]
           (reset! (get-in form [:fields k :active?]) true))
-        (swap! (:branching form) assoc field-name fields)))))
+        ;; update branching RAtom
+        (swap! (:branching form) assoc field-name fields)
+        ;; run a special update against the data RAtom
+        (let [update-model-values (->> fields
+                                       (filter (fn [[k v]]
+                                                 (some? (:model v))))
+                                       (map (fn [[k v]]
+                                              [k (:model v)]))
+                                       (into {}))]
+          (swap! (:data form) merge update-model-values))))))
 
 (defn- get-changed-field [old-state new-state]
   (reduce (fn [out [k value]]
@@ -185,7 +197,7 @@
                                       (filter #(active-fields (first %)))
                                       (map last)
                                       (every? empty?))
-                          to-send (if valid? (select-keys new-state active-fields) ::invalid)]
+                          to-send (if valid? (select-keys @(:data form) active-fields) ::invalid)]
                       (when (fn? on-valid)
                         (on-valid to-send))
                       (rf/dispatch [::on-valid (:id form) to-send]))))))))

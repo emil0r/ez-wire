@@ -3,6 +3,7 @@
             [demo.common :refer [code]]
             [demo.forms.flight :refer [form-flight]]
             [demo.forms.login :refer [form-login]]
+            [demo.forms.order :refer [form-order]]
             [demo.forms.templated :refer [form-templated]]
             [demo.forms.wired :refer [form-wired]]
             [demo.forms.wizard :refer [form-wizard]]
@@ -216,15 +217,17 @@
                                            "none"
                                            {:hide-fields :all}
                                            "change-other-fields"
-                                           {
-                                            :fields {:dropdown-field2 {:options ["new"
+                                           {:fields {:dropdown-field2 {:options ["new"
                                                                                  "options"
                                                                                  "to"
                                                                                  "my"
                                                                                  "dropdown"]}}}
                                            "hide-everything"
                                            {:hide-fields :all
-                                            :exclude-branching-field? false}))}}
+                                            :exclude-branching-field? false}
+
+                                           ;; default. always include
+                                           {}))}}
             [{:name :field1
               :element input-text}
              {:name :dropdown-field2
@@ -260,7 +263,8 @@
                 "Flight form"
                 "Wizard flight form"
                 "Wired flight form"
-                "Templated flight form"]]
+                "Templated flight form"
+                "Branching order form"]]
       [:li [:a {:href (str "#" (create-link text))} text]])]
    (explain-form "Explain form")
    (explain-fields "Explain fields")
@@ -290,7 +294,8 @@
                            ["Flight form" form-flight]
                            ["Wizard flight form" form-wizard]
                            ["Wired flight form" form-wired]
-                           ["Templated flight form" form-templated]]]
+                           ["Templated flight form" form-templated]
+                           ["Branching order form" form-order]]]
        (let [link (create-link heading)]
          [:li {:id link :key link}
           [:h3.subtitle heading]

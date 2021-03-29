@@ -1,4 +1,4 @@
-(defproject ez-wire "0.5.0-beta3"
+(defproject ez-wire "0.5.0-beta4"
 
   :description "Helper library for reagent+re-frame"
 
