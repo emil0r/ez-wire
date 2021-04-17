@@ -12,7 +12,7 @@ image::https://img.shields.io/clojars/v/ez-wire.svg[Clojars Project]
 
 [source,clojure]
 ----
-[ez-wire "0.4.1"]
+[ez-wire "0.5.0"]
 ----
 
 
