@@ -19,14 +19,14 @@
 (defn text-adapter [{:keys [element] :as field}]
   (let [f (r/adapt-react-class element)]
     (fn [{:keys [model value] :as data}]
-      [f (merge {:defaultValue value
+      [f (merge {:value (or @model value)
                  :on-change #(reset! model (-> % .-target .-value))}
                 (select-keys data [:id :placeholder]))])))
 
 (defn integer-adapter [{:keys [element] :as field}]
   (let [f (r/adapt-react-class element)]
     (fn [{:keys [model value] :as data}]
-      [f (merge {:defaultValue (str value)
+      [f (merge {:value (str (or @model value))
                  :on-change #(let [value (-> % .-target .-value)
                                    int-value (js/parseInt value)]
                                (if-not (js/isNaN int-value)
@@ -56,7 +56,25 @@
     [:div "You need more than one value present"]))
 
 (defform testform
-  {}
+  {:branch/branching? true
+   :branch/branches {:test5 (fn [{:keys [value] :as _context}]
+                              (condp = value
+                                "all"
+                                {:show-fields :all}
+                                "one"
+                                {:show-fields [:test1 :test2 :test6 :test7]
+                                 :hide-fields :all
+                                 :fields {:test1 {:placeholder "foo"
+                                                  :help "My new help text"}
+                                          :test2 {:placeholder "bar"
+                                                  :help "I was not here before"}}}
+                                "two"
+                                {:show-fields [:test3 :test4]
+                                 :hide-fields :all}
+
+                                ;; default
+                                ;; needs one for initiation of the form
+                                {}))}}
   [{:element e/input
     :adapter text-adapter
     :placeholder "foobar"
@@ -76,7 +94,7 @@
    {:element e/input
     :adapter text-adapter
     :placeholder "Third"
-    :wiring [:tr [:td "bar"] [:td :$field]]
+    :wiring [:tr [:td "bar"] [:td :$field :$errors]]
     :validation [::long-string]
     :name :test3}
    {:element e/input
@@ -84,19 +102,31 @@
     :placeholder ""
     :text "External error should show up even with no other validation added"
     :name :test4
-    :validation [::long-string more-than-one]}])
+    :validation [::long-string more-than-one]}
+   {:element e/dropdown
+    :options ["all" "one" "two"]
+    :name :test5}
+   {:element e/text
+    :name :test6
+    :active? false
+    :value "This is test 6"}
+   {:element e/text
+    :name :test7
+    :active? false
+    :value "This is test 7"}])
 
 
 (defn form-page []
   (let [data {:test1 "Elsa"
-              :test2 "asdf"}
+              :test2 "asdf"
+              :test5 "two"}
         form (testform {} data)
         wizard-form (testform {:render :wizard
                                :wizard {:steps [{:fields [:test1]
                                                  :legend [:h3 "Part 1"]}
                                                 {:fields [:test2]
                                                  :legend [:h3 "Part 2"]}
-                                                {:fields [:test3 :test4]
+                                                {:fields [:test3 :test4 :test5 :test6 :test7]
                                                  :legend [:h3 "Part 3"]}]}}
                               data)
         wizard-current-step (rf/subscribe [:ez-wire.form.wizard/current-step (:id wizard-form)])
@@ -136,7 +166,11 @@
          [:> e/button
           {:class "valid-button"
            :on-click #(js/alert (pr-str @valid-form))}
-          "Valid form?"]]
+          "Valid form?"]
+         [:> e/button
+          {:class "error-button"
+           :on-click #(js/alert (pr-str (:errors form)))}
+          "Current errors"]]
         [:div {:class "internal-info"}
          [:h2 "Internal state of the form"]
          (when @(:data form)
@@ -167,14 +201,41 @@
                         :class "foobar"
                         :wiring
                         [:div.wire
-                         [:div.number1
-                          :$test1.label
-                          :$test1.field
-                          :$test1.errors]
-                         [:div.number2
-                          :$test2.label
-                          :$test2.field
-                          :$test2.errors]]}
+                         [:$test1.branch
+                          [:div.number1
+                           :$test1.label
+                           :$test1.field
+                           :$test1.errors]]
+                         [:$test2.branch
+                          [:div.number2
+                           :$test2.label
+                           :$test2.field
+                           :$test2.errors]]
+                         [:$test3.branch
+                          [:div.number3
+                           :$test3.label
+                           :$test3.field
+                           :$test3.errors]]
+                         [:$test4.branch
+                          [:div.number4
+                           :$test4.label
+                           :$test4.field
+                           :$test4.errors]]
+                         [:$test5.branch
+                          [:div.number5
+                           :$test5.label
+                           :$test5.field
+                           :$test5.errors]]
+                         [:$test6.branch
+                          [:div.number6
+                           :$test6.label
+                           :$test6.field
+                           :$test6.errors]]
+                         [:$test7.branch
+                          [:div.number7
+                           :$test7.label
+                           :$test7.field
+                           :$test7.errors]]]}
           form]]
         [:div
          [:h2 "My wizard testform [table]"]

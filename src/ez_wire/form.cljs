@@ -73,12 +73,13 @@
                     #(get-error-message % value form)))
          (remove nil?))))
 
-(defn- should-update-error?
+(defn- field-updated?
   [old-state k v]
   ;; we skip pairs of nils assuming that this is a state of initialization
-  (and (not (and (nil? (get old-state k))
-                 (nil? v)))
-       (not= v (get old-state k))))
+  (let [old-v (get old-state k)]
+    (and (not (and (nil? old-v)
+                   (nil? v)))
+         (not= v old-v))))
 
 (defn- get-validation-errors [form new-state old-state]
   (fn [out [k v]]
@@ -87,14 +88,15 @@
       ;; we still need all the errors for on-valid to properly fire
       (let [affected-fields (get-affected-fields validation)
             update? (if (empty? affected-fields)
-                      (should-update-error? old-state k v)
-                      ;; we need to run two checks here. first against the values
-                      ;; of the current field. if this does not pass should-update-error?
+                      (field-updated? old-state k v)
+                      ;; we need to run two checks here. first that the current field
+                      ;; has been updated at least once. if this does not pass
                       ;; we do nothing, because the user has not begun to interact with the
                       ;; field
-                      ;; if it passes that we run the check against affected fields
-                      (and (should-update-error? old-state k v) 
-                           (some #(should-update-error? old-state % (get new-state %))
+                      ;; if it passes that we run the check against affected fields,
+                      ;; including the current field
+                      (and (some? v)
+                           (some #(field-updated? old-state % (get new-state %))
                                  (set/union affected-fields #{k}))))]
         (if (valid? validation v form)
           ;; if the validation is valid we change it to hold zero errors
@@ -118,26 +120,87 @@
               (conj out [k update? errors])))
           [] field-errors))
 
-(defn- add-validation-watcher
-  "Add validation checks for the RAtom as it changes"
+(defn- handle-branching [form field-name value]
+  (if (and (some? field-name)
+           (get-in form [:options :branch/branching?]))
+    (if-let [f (get-in form [:options :branch/branches field-name])]
+      (let [result (f {:form form :field-k field-name :value value})
+            {:keys [show-fields hide-fields fields]} result
+            show-fields (set (if (= show-fields :all) (:field-ks form) show-fields))
+            show-fields (if (:exclude-branching-field? result)
+                      show-fields
+                      (conj show-fields field-name))
+            hide-fields (set (if (= hide-fields :all) (:field-ks form) hide-fields))
+            to-hide (set/difference hide-fields show-fields)]
+        ;; hide fields
+        (doseq [k to-hide]
+          (reset! (get-in form [:fields k :active?]) false))
+        ;; show fields
+        (doseq [k show-fields]
+          (reset! (get-in form [:fields k :active?]) true))
+        ;; update branching RAtom
+        (swap! (:branching form) assoc field-name fields)
+        ;; run a special update against the data RAtom
+        (let [update-model-values (->> fields
+                                       (filter (fn [[k v]]
+                                                 (some? (:model v))))
+                                       (map (fn [[k v]]
+                                              [k (:model v)]))
+                                       (into {}))]
+          (swap! (:data form) merge update-model-values))))))
+
+(defn- get-changed-field [old-state new-state]
+  (reduce (fn [out [k value]]
+            (if (field-updated? old-state k value)
+              (reduced k)
+              nil))
+          nil new-state))
+
+(defn- add-watcher
+  "Add validation and branching checks for the RAtom as it changes"
   [form]
-  (let [{{on-valid :on-valid} :options} form]
-    (add-watch (:data form) (str "form-watcher-" (:id form))
+  (let [{{on-valid :on-valid} :options} form
+        ;; Watcher is manually run when initiating a form. We
+        ;; do not wish to run branching during the initiation however,
+        ;; so we add this little variable for initiation to handle
+        ;; that problem
+        branching-initiated? (clojure.core/atom false)]
+    (add-watch (:data form) (:id form)
                (fn [_ _ old-state new-state]
-                 ;; get all errors for all fields
-                 (let [field-errors (->> (reduce (get-validation-errors form new-state old-state) [] new-state)
-                                         (get-external-errors form))]
-                   ;; update the RAtoms for the error map
-                   (doseq [[k update? errors] field-errors]
-                     (when update?
-                       (rf/dispatch [::error (:id form) k errors])
-                       (reset! (get-in form [:errors k]) errors)))
-                   ;; if there are no errors then the form is valid and we can fire off the function
-                   (let [valid? (every? empty? (map last field-errors))
-                         to-send (if valid? new-state ::invalid)]
-                     (when (fn? on-valid)
-                       (on-valid to-send))
-                     (rf/dispatch [::on-valid (:id form) to-send])))))))
+                 (let [changed-field-k (get-changed-field old-state new-state)]
+                  ;; get all errors for all fields
+                  (let [field-errors (->> (reduce (get-validation-errors form new-state old-state) [] new-state)
+                                          (get-external-errors form))]
+                    ;; update the RAtoms for the error map
+                    (doseq [[k update? errors] field-errors]
+                      (when update?
+                        (rf/dispatch [::error (:id form) k errors])
+                        (reset! (get-in form [:errors k]) errors)))
+
+                    ;; handle branching before validity
+                    ;; validity depends on the updated branching to decide
+                    ;; which fields are active or not.
+                    ;; branching initiation is also handled here.
+                    (if @branching-initiated?
+                      (when changed-field-k
+                        (handle-branching form changed-field-k (get new-state changed-field-k)))
+                      (reset! branching-initiated? true))
+
+                    ;; if there are no errors then the form is
+                    ;; valid and we can fire off the function
+                    (let [active-fields (reduce (fn [out k]
+                                                  (if @(:active? (get-in form [:fields k]))
+                                                    (conj out k)
+                                                    out))
+                                                #{} (:field-ks form))
+                          valid? (->> field-errors
+                                      (filter #(active-fields (first %)))
+                                      (map last)
+                                      (every? empty?))
+                          to-send (if valid? (select-keys @(:data form) active-fields) ::invalid)]
+                      (when (fn? on-valid)
+                        (on-valid to-send))
+                      (rf/dispatch [::on-valid (:id form) to-send]))))))))
 
 (defn- get-default-value [data name field]
   (get data name (:value field)))
@@ -151,8 +214,11 @@
                        form-options
                        override-options)
         map-fields (->> fields
-                        (map (fn [{:keys [name id error-element] :as field}]
+                        (map (fn [{:keys [name id error-element active?] :as field}]
                                [name (assoc field
+                                            :active? (atom (if (some? active?)
+                                                             active?
+                                                             true))
                                             :field-fn (get-field-fn field)
                                             :value (get-default-value data name field)
                                             :error-element (or error-element
@@ -167,19 +233,25 @@
         errors (reduce (fn [out [name _]]
                          (assoc out name (atom [])))
                        {} map-fields)
-        
+        field-ks (mapv :name fields)
         form (map->Form {:fields       map-fields
                          ;; field-ks control which fields are to be rendered for
                          ;; everything form supports with the exception of wiring
-                         :field-ks     (mapv :name fields)
+                         :field-ks     field-ks
                          :options      options
                          :default-data -data
                          :id           (:id options)
                          :extra        (atom {})
                          :form-key     (atom (random-uuid))
+                         :branching    (atom {})
+                         :wizard       (atom {})
                          :errors       errors
                          :data         (atom {})})]
-    (add-validation-watcher form)
+
+    (doseq [k field-ks]
+      (handle-branching form k (get -data k)))
+    
+    (add-watcher form)
     ;; run validation once before we send back our form
     (reset! (:data form) -data)
     form))

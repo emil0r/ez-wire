@@ -5,45 +5,41 @@
             [reagent.core :as r]
             [re-frame.core :as rf]))
 
-(defn- li [{:keys [wiring] :as field} {{label? :label?} :options :as form-map}]
-  (if wiring
-    [:$wrapper wiring]
+(defn- li [{:keys [active?] :as field} {{label? :label?} :options :as form}]
+  (when @active?
     (if (false? label?)
       [:li {:key (str "li-" (:id field))}
-       (common/render-field field form-map)
-       (common/render-error-element field form-map)
-       (common/render-text field form-map)
-       (common/render-help field form-map)]
+       (common/render-field field form)
+       (common/render-error-element field form)
+       (common/render-text field form)
+       (common/render-help field form)]
       [:li {:key (str "li-" (:id field))}
-       (common/render-label field form-map)
-       (common/render-field (dissoc field :label) form-map)
-       (common/render-error-element field form-map)
-       (common/render-text field form-map)
-       (common/render-help field form-map)])))
+       (common/render-label field form)
+       (common/render-field (dissoc field :label) form)
+       (common/render-error-element field form)
+       (common/render-text field form)
+       (common/render-help field form)])))
 
 (defn as-list
-  [params {:keys [id form-key] :as form-map} & [content]]
+  [params {:keys [id form-key] :as form} & [content]]
   (let [{:keys [list/type]
-         :or   {type :ul}} params
-        body (common/get-body li params form-map)
-        re-render? (helpers/re-render? form-map)]
+         :or   {type :ul}} params]
     (r/create-class
      {:display-name "as-list"
 
       :component-will-unmount
       (fn [this]
-        (when (util/select-option :form/automatic-cleanup? form-map params)
+        (when (util/select-option :form/automatic-cleanup? form params)
           (rf/dispatch [:ez-wire.form/cleanup id])))
       :reagent-render
-      (fn [params form-map & [content]]
+      (fn [params form & [content]]
         (let [{:keys [style
                       class]
                :or {style {}
-                    class ""}} params
-              body (if re-render? (common/get-body li params form-map) body)]
+                    class ""}} params]
           [type {:key (util/slug "form-list" @form-key)
                  :style style
                  :class class}
-           body
+           [common/get-body li params form]
            (if content
              [content])]))})))

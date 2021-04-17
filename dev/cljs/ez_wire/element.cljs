@@ -22,3 +22,14 @@
 (def message        (component "Message"))
 (def message-header (component "Message" "Header"))
 (def input          (component "Input"))
+
+
+(defn dropdown [{:keys [model options]}]
+  [:select {:value @model
+            :on-change #(let [value (-> % .-target .-value)]
+                          (reset! model value))}
+   (for [option options]
+     [:option option])])
+
+(defn text [{:keys [model]}]
+  [:div @model])

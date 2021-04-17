@@ -74,4 +74,5 @@
 
 (defn cleanup-form!
   [form]
+  (remove-watch (:data form) (:id form))
   (rf/dispatch [:ez-wire.form/cleanup (:id form)]))
