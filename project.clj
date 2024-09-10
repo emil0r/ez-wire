@@ -1,4 +1,4 @@
-(defproject ez-wire "0.5.0"
+(defproject ez-wire "0.6.0-SNAPSHOT"
 
   :description "Helper library for reagent+re-frame"
 
@@ -10,14 +10,13 @@
   :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
                  [org.clojure/clojurescript "1.10.597" :scope "provided"]
                  [re-frame "0.10.5" :scope "provided"]
-                 [reagent "1.0.0" :scope "provided"]]
+                 [reagent "1.2.0" :scope "provided"]]
 
   :repl-options {:init-ns ez-wire.core}
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-figwheel "0.5.18"]
             [lein-doo "0.1.10"]]
-  
 
   :clojurescript? true
   :jar-exclusions [#"\.swp|\.swo|\.DS_Store"]
@@ -85,7 +84,7 @@
                                 :source-map-timestamp true
                                 :source-map    "demo/resources/js/prod/app.js.map"
                                 :optimizations :advanced}}}}}
-             
+
              :test
              {:dependencies
               [;; test
@@ -101,7 +100,7 @@
                                 :source-map    true
                                 :pretty-print  true}}}}
               :doo {:build "test"}}}
-  
+
   :aliases {"test"
             ["do"
              ["clean"]

@@ -1,9 +1,7 @@
 (ns ez-wire.form.wizard
-  (:require [ez-wire.form.common :as common]
-            [ez-wire.form.elements :as elements]
+  (:require [ez-wire.form.elements :as elements]
             [ez-wire.form.helpers :as helpers]
             [ez-wire.protocols :refer [t]]
-            [ez-wire.util :as util]
             [reagent.core :as r]
             [re-frame.core :as rf]))
 
@@ -32,10 +30,10 @@
                   :class (get css :button)
                   :on-click #(cond (not last-step?)
                                    (reset! step (min max-steps (inc @step)))
-                                   
+
                                    (and last-step? valid? valid-fn)
                                    (valid-fn @data)
-                                   
+
                                    :else
                                    nil)})
          (if (and last-step? valid?)

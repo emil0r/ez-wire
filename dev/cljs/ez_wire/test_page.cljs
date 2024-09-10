@@ -16,6 +16,16 @@
 
 (enable-console-print!)
 
+(rf/reg-event-db
+ ::switch
+ (fn [db _]
+   (assoc db :switch (not (:switch db)))))
+
+(rf/reg-sub
+ ::switch
+ (fn [db _]
+   (true? (:switch db))))
+
 (defn text-adapter [{:keys [element] :as field}]
   (let [f (r/adapt-react-class element)]
     (fn [{:keys [model value] :as data}]
@@ -130,12 +140,13 @@
                                                  :legend [:h3 "Part 3"]}]}}
                               data)
         wizard-current-step (rf/subscribe [:ez-wire.form.wizard/current-step (:id wizard-form)])
-        valid-form (rf/subscribe [::form/on-valid (:id form)])]
+        valid-form (rf/subscribe [::form/on-valid (:id form)])
+        switch? (rf/subscribe [::switch])]
     (fn []
       [:div
        [:div "Hi there"]
        [:div.left
-        [:div
+        [:div.menu-buttons
          [:> e/button
           {:class "add-error"
            :on-click #(helpers/add-external-error form :test1 :foo "This is external error A" true)}
@@ -148,11 +159,16 @@
           {:class "remove-error"
            :on-click #(helpers/remove-external-error form :test1 :bar)}
           "Remove external non-passing error to :test1"]
-         
+
          [:> e/button
           {:class "add-error"
            :on-click #(helpers/add-external-error form :test4 :foo "This is an external error" true)}
           "Add external passing error to :test4"]
+
+         [:> e/button
+          {:class (if @switch? "switch-form switch" "switch-form")
+           :on-click #(rf/dispatch [::switch])}
+          "Switch " (if @switch? "On" "Off")]
 
          [:> e/button
           {:class "reset-form"
@@ -188,7 +204,13 @@
         [:div
          [:h2 "My testform [template]"]
          [form/as-template {:template/element :span
-                            :template [:div.template :$key
+                            :body/wrapper (fn [{:keys [field] :as _opts} el]
+                                            (println field)
+                                            [:div {:class (if @switch?
+                                                            ["switch"]
+                                                            [])}
+                                             el])
+                            :template [:div :$key
                                        :$label
                                        :$field
                                        :$errors

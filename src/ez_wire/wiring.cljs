@@ -1,11 +1,12 @@
 (ns ez-wire.wiring
-  (:require [clojure.string :as str]
-            [clojure.zip :as zip]
+  (:require [clojure.zip :as zip]
             [ez-wire.zipper :refer [zipper]]))
 
 (defn marker [node]
-  (if (and (keyword? node)
-           (str/starts-with? (str node) ":$"))
+  (when (and (keyword? node)
+             (or (= "$" (subs (name node) 0 1))
+                 (and (namespace node)
+                      (= "$" (subs (namespace node) 0 1)))))
     node))
 
 (defn unwrapper [loc markers]
@@ -15,7 +16,7 @@
         (zip/replace rest-of-location))))
 
 (defn marker-component [comp & args]
-  (fn [loc markers]
+  (fn [loc _markers]
     (let [new-loc (zip/replace loc comp)]
       (reduce (fn [out arg]
                 (zip/insert-right out arg))
@@ -26,9 +27,9 @@
         mk (marker node)]
     (if (contains? markers mk)
       (let [value (get markers mk)]
-        (if (fn? value)
-          (value loc markers)
-          (zip/replace loc value)))
+        (cond
+          (fn? value) (value loc markers)
+          :else (zip/replace loc value)))
       loc)))
 
 (defn wiring [frame markers]

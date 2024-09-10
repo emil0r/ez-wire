@@ -21,8 +21,6 @@
       [error-element {:model (get-in form [:errors name])
                       :class (get css :error "error")}])))
 
-
-
 (defn- get-branching-args [branch-data]
   (reduce merge (vals branch-data)))
 
@@ -59,13 +57,13 @@
 (defn render-wiring [{:keys [wiring active?] :as field} form]
   (let [rendered (wiring/wiring [:$wrapper
                                  wiring]
-                                {:$wrapper wiring/unwrapper
-                                 :$key     {:key (str "ez-wire-form-" (:id field))}
-                                 :$label   (render-label field form)
-                                 :$field   (render-field field form)
-                                 :$errors  (render-error-element field form)
-                                 :$text    (render-text field form)
-                                 :$help    (render-help field form)})]
+                                {:$wrapper         wiring/unwrapper
+                                 :$key             {:key (str "ez-wire-form-" (:id field))}
+                                 :$label           (render-label field form)
+                                 :$field           (render-field field form)
+                                 :$errors          (render-error-element field form)
+                                 :$text            (render-text field form)
+                                 :$help            (render-help field form)})]
     (fn [{:keys [active?]} _]
       (when @active?
         (into [:<>] rendered)))))
@@ -86,8 +84,18 @@
                      fields)]
         [:<>
          (for [field fields]
-           (if (:wiring field)
-             ^{:key (:id field)}
+           (cond
+             (and (:wiring field)
+                  (:body/wrapper params))
+             (let [wrapper (:body/wrapper params)]
+               ^{:key [(:id form) (:id field)]}
+               [wrapper {:field field :form form}
+                [render-wiring field form]])
+
+             (:wiring field)
+             ^{:key [(:id form) (:id field)]}
              [render-wiring field form]
-             ^{:key (:id field)}
+
+             :else
+             ^{:key [(:id form) (:id field)]}
              [row-fn field form]))]))))

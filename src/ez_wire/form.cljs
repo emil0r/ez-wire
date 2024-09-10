@@ -115,39 +115,37 @@
                            (count trimmed-external-errors))
                   (swap! (:extra form) assoc-in [k :field-errors] trimmed-external-errors))
                 (conj out [k update? (->> trimmed-external-errors
-                                              (map #(get-error-message % nil nil))
-                                              (into errors))]))
+                                          (map #(get-error-message % nil nil))
+                                          (into errors))]))
               (conj out [k update? errors])))
           [] field-errors))
 
 (defn- handle-branching [form field-name value]
-  (if (and (some? field-name)
-           (get-in form [:options :branch/branching?]))
-    (if-let [f (get-in form [:options :branch/branches field-name])]
-      (let [result (f {:form form :field-k field-name :value value})
-            {:keys [show-fields hide-fields fields]} result
-            show-fields (set (if (= show-fields :all) (:field-ks form) show-fields))
-            show-fields (if (:exclude-branching-field? result)
-                      show-fields
-                      (conj show-fields field-name))
-            hide-fields (set (if (= hide-fields :all) (:field-ks form) hide-fields))
-            to-hide (set/difference hide-fields show-fields)]
-        ;; hide fields
-        (doseq [k to-hide]
-          (reset! (get-in form [:fields k :active?]) false))
-        ;; show fields
-        (doseq [k show-fields]
-          (reset! (get-in form [:fields k :active?]) true))
-        ;; update branching RAtom
-        (swap! (:branching form) assoc field-name fields)
-        ;; run a special update against the data RAtom
-        (let [update-model-values (->> fields
-                                       (filter (fn [[k v]]
-                                                 (some? (:model v))))
-                                       (map (fn [[k v]]
-                                              [k (:model v)]))
-                                       (into {}))]
-          (swap! (:data form) merge update-model-values))))))
+  (if-let [f (get-in form [:options :branch/branches field-name])]
+    (let [result (f {:form form :field-k field-name :value value})
+          {:keys [show-fields hide-fields fields]} result
+          show-fields (set (if (= show-fields :all) (:field-ks form) show-fields))
+          show-fields (if (:exclude-branching-field? result)
+                        show-fields
+                        (conj show-fields field-name))
+          hide-fields (set (if (= hide-fields :all) (:field-ks form) hide-fields))
+          to-hide (set/difference hide-fields show-fields)]
+      ;; hide fields
+      (doseq [k to-hide]
+        (reset! (get-in form [:fields k :active?]) false))
+      ;; show fields
+      (doseq [k show-fields]
+        (reset! (get-in form [:fields k :active?]) true))
+      ;; update branching RAtom
+      (swap! (:branching form) assoc field-name fields)
+      ;; run a special update against the data RAtom
+      (let [update-model-values (->> fields
+                                     (filter (fn [[k v]]
+                                               (some? (:model v))))
+                                     (map (fn [[k v]]
+                                            [k (:model v)]))
+                                     (into {}))]
+        (swap! (:data form) merge update-model-values)))))
 
 (defn- get-changed-field [old-state new-state]
   (reduce (fn [out [k value]]
@@ -164,43 +162,45 @@
         ;; do not wish to run branching during the initiation however,
         ;; so we add this little variable for initiation to handle
         ;; that problem
-        branching-initiated? (clojure.core/atom false)]
+        branching-initiated? (clojure.core/atom false)
+        use-branching? (get-in form [:options :branch/branching?])]
     (add-watch (:data form) (:id form)
                (fn [_ _ old-state new-state]
                  (let [changed-field-k (get-changed-field old-state new-state)]
-                  ;; get all errors for all fields
-                  (let [field-errors (->> (reduce (get-validation-errors form new-state old-state) [] new-state)
-                                          (get-external-errors form))]
-                    ;; update the RAtoms for the error map
-                    (doseq [[k update? errors] field-errors]
-                      (when update?
-                        (rf/dispatch [::error (:id form) k errors])
-                        (reset! (get-in form [:errors k]) errors)))
+                   ;; get all errors for all fields
+                   (let [field-errors (->> (reduce (get-validation-errors form new-state old-state) [] new-state)
+                                           (get-external-errors form))]
+                     ;; update the RAtoms for the error map
+                     (doseq [[k update? errors] field-errors]
+                       (when update?
+                         (rf/dispatch [::error (:id form) k errors])
+                         (reset! (get-in form [:errors k]) errors)))
 
-                    ;; handle branching before validity
-                    ;; validity depends on the updated branching to decide
-                    ;; which fields are active or not.
-                    ;; branching initiation is also handled here.
-                    (if @branching-initiated?
-                      (when changed-field-k
-                        (handle-branching form changed-field-k (get new-state changed-field-k)))
-                      (reset! branching-initiated? true))
+                     ;; handle branching before validity
+                     ;; validity depends on the updated branching to decide
+                     ;; which fields are active or not.
+                     ;; branching initiation is also handled here.
+                     (if @branching-initiated?
+                       (when (and use-branching?
+                                  changed-field-k)
+                         (handle-branching form changed-field-k (get new-state changed-field-k)))
+                       (reset! branching-initiated? true))
 
-                    ;; if there are no errors then the form is
-                    ;; valid and we can fire off the function
-                    (let [active-fields (reduce (fn [out k]
-                                                  (if @(:active? (get-in form [:fields k]))
-                                                    (conj out k)
-                                                    out))
-                                                #{} (:field-ks form))
-                          valid? (->> field-errors
-                                      (filter #(active-fields (first %)))
-                                      (map last)
-                                      (every? empty?))
-                          to-send (if valid? (select-keys @(:data form) active-fields) ::invalid)]
-                      (when (fn? on-valid)
-                        (on-valid to-send))
-                      (rf/dispatch [::on-valid (:id form) to-send]))))))))
+                     ;; if there are no errors then the form is
+                     ;; valid and we can fire off the function
+                     (let [active-fields (reduce (fn [out k]
+                                                   (if @(:active? (get-in form [:fields k]))
+                                                     (conj out k)
+                                                     out))
+                                                 #{} (:field-ks form))
+                           valid? (->> field-errors
+                                       (filter #(active-fields (first %)))
+                                       (map last)
+                                       (every? empty?))
+                           to-send (if valid? (select-keys @(:data form) active-fields) ::invalid)]
+                       (when (fn? on-valid)
+                         (on-valid to-send))
+                       (rf/dispatch [::on-valid (:id form) to-send]))))))))
 
 (defn- get-default-value [data name field]
   (get data name (:value field)))
@@ -250,7 +250,7 @@
 
     (doseq [k field-ks]
       (handle-branching form k (get -data k)))
-    
+
     (add-watcher form)
     ;; run validation once before we send back our form
     (reset! (:data form) -data)

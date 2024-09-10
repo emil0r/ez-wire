@@ -22,9 +22,16 @@
     width: 60%;
     position: relative;
 }
-.add-error, .remove-error {
-    margin: 10px 5px;
+
+.menu-buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
 }
+.menu-buttons > button {
+  cursor: pointer;
+}
+
 .alert-button, .valid-button, .which-state-button, .error-button {
     position: fixed;
     padding: 1rem 2rem;
@@ -58,4 +65,8 @@
 
 .clear {
     clear: both;
+}
+
+.switch {
+  background-color: orange;
 }
